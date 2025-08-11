@@ -1,0 +1,343 @@
+<!-- 
+    DETALLE DE PRODUCTO
+    ===================
+    Plantilla que muestra la vista detallada de un producto individual.
+    Incluye la galería de imágenes, información del producto y acciones disponibles.
+    Extiende de la plantilla base.html.
+-->
+{% extends 'tienda/base.html' %}
+
+{% block extra_css %}
+<!-- Estilos específicos para la página de detalle de producto -->
+<style>
+    /* Cambia la fuente y el tamaño base de toda la interfaz de detalles */
+    .product-detail-container {
+        font-family: 'Roboto', Arial, sans-serif; /* Cambia la fuente */
+        font-size: 1.1rem; /* Cambia el tamaño base de letra */
+        max-width: 1200px;                    /* Ancho máximo del contenedor */
+        margin: 30px auto;                   /* Centrado con margen superior e inferior */
+        background: #fff;                    /* Fondo blanco */
+        border-radius: 10px;                 /* Bordes redondeados */
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Sombra suave */
+        overflow: hidden;                    /* Oculta el desbordamiento */
+    }
+    
+    /* Estilos para la galería de imágenes del producto */
+    .product-gallery {
+        padding: 30px;                      /* Espaciado interno */
+        background: #f8f9fa;                /* Fondo gris claro */
+        text-align: center;                 /* Centrado del contenido */
+        display: flex;                      /* Usar flexbox */
+        flex-direction: column;             /* Apilar elementos verticalmente */
+        align-items: center;                /* Centrar horizontalmente */
+        justify-content: center;            /* Centrar verticalmente */
+        min-height: 400px;                  /* Altura mínima para mantener consistencia */
+    }
+    
+    /* Estilos para la imagen del producto */
+    .product-gallery img {
+        max-width: 100%;                   /* Ancho máximo del contenedor */
+        max-height: 400px;                 /* Altura máxima */
+        width: auto;                       /* Ancho automático para mantener proporción */
+        height: auto;                      /* Altura automática para mantener proporción */
+        object-fit: contain;               /* Ajuste de la imagen manteniendo la relación de aspecto */
+        border-radius: 8px;                /* Bordes redondeados */
+        display: block;                    /* Asegura que la imagen sea un bloque */
+        margin: 0 auto;                    /* Centrar la imagen horizontalmente */
+    }
+    
+    /* Contenedor de la información del producto */
+    .product-info {
+        padding: 30px;                     /* Espaciado interno */
+    }
+    
+    /* Estilo del título del producto */
+    .product-title {
+        font-family: 'Roboto Slab', Arial, sans-serif; /* Fuente para títulos */
+        font-size: 2.5rem;                 /* Tamaño de fuente más grande */
+        font-weight: 700;                  /* Negrita */
+        color: #1a1a2e;                    /* Color de texto oscuro */
+        margin-bottom: 10px;               /* Espaciado inferior */
+        line-height: 1.2;                  /* Interlineado */
+    }
+    
+    /* Estilo de la marca y modelo del producto */
+    .product-brand {
+        font-size: 1.2rem;                 /* Tamaño de fuente */
+        color: #666;                       /* Color de texto gris */
+        margin-bottom: 20px;               /* Espaciado inferior */
+        font-weight: 500;                  /* Peso de la fuente */
+    }
+    
+    /* Estilo del precio del producto */
+    .product-price {
+        font-size: 2rem;                   /* Tamaño de fuente grande */
+        color: #e94560;                    /* Color rojo característico */
+        font-weight: 700;                  /* Negrita */
+        margin: 20px 0;                    /* Márgenes superior e inferior */
+    }
+    
+    /* Contenedor de metadatos del producto (categoría, stock, etc.) */
+    .product-meta {
+        margin: 25px 0;                    /* Márgenes superior e inferior */
+        padding: 15px 0;                   /* Relleno vertical */
+        border-top: 1px solid #eee;        /* Borde superior sutil */
+        border-bottom: 1px solid #eee;     /* Borde inferior sutil */
+    }
+    
+    /* Estilo de cada ítem de metadato */
+    .meta-item {
+        margin-bottom: 10px;               /* Espaciado inferior */
+        display: flex;                     /* Disposición en fila */
+        align-items: center;               /* Alineación vertical al centro */
+    }
+    
+    /* Estilo de la etiqueta de metadato */
+    .meta-label {
+        font-weight: 600;                  /* Negrita */
+        color: #555;                       /* Color de texto gris oscuro */
+        min-width: 120px;                  /* Ancho mínimo para alinear valores */
+    }
+    
+    /* Estilo del valor del metadato */
+    .meta-value {
+        color: #333;                       /* Color de texto oscuro */
+    }
+    
+    /* Estilo de la descripción del producto */
+    .product-description {
+        margin: 25px 0;                    /* Márgenes superior e inferior */
+        line-height: 1.7;                  /* Interlineado amplio para mejor legibilidad */
+        color: #444;                       /* Color de texto gris oscuro */
+    }
+    
+    /* Contenedor de especificaciones técnicas */
+    .product-specs {
+        margin: 25px 0;                    /* Márgenes superior e inferior */
+    }
+    
+    /* Título de las especificaciones técnicas */
+    .specs-title {
+        font-size: 1.4rem;                 /* Tamaño de fuente */
+        color: #1a1a2e;                    /* Color de texto oscuro */
+        margin-bottom: 15px;               /* Espaciado inferior */
+        font-weight: 600;                  /* Negrita */
+    }
+    
+    /* Contenedor de botones de acción */
+    .product-actions {
+        display: flex;                     /* Disposición en fila */
+        gap: 15px;                        /* Espaciado entre botones */
+        margin-top: 30px;                 /* Margen superior */
+        flex-wrap: wrap;                  /* Permite que los botones pasen a la siguiente línea */
+    }
+    
+    /* Estilo base para botones de acción */
+    .btn-detail {
+        background: #1a1a2e;               /* Fondo oscuro */
+        color: white;                     /* Texto blanco */
+        border: none;                     /* Sin borde */
+        padding: 12px 25px;               /* Relleno interno */
+        border-radius: 5px;               /* Bordes redondeados */
+        font-weight: 600;                 /* Negrita */
+        text-transform: uppercase;        /* Texto en mayúsculas */
+        font-size: 0.9rem;                /* Tamaño de fuente */
+        letter-spacing: 0.5px;            /* Espaciado entre letras */
+        transition: all 0.3s ease;        /* Transición suave */
+        text-decoration: none;            /* Sin subrayado */
+        display: inline-flex;             /* Disposición flexible en línea */
+        align-items: center;              /* Centrado vertical */
+        justify-content: center;          /* Centrado horizontal */
+        gap: 8px;                         /* Espaciado entre icono y texto */
+    }
+    
+    /* Efecto hover para botones de acción */
+    .btn-detail:hover {
+        background: #e94560;               /* Color rojo al pasar el ratón */
+        color: white;                     /* Texto blanco */
+        transform: translateY(-2px);      /* Efecto de elevación */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Sombra suave */
+    }
+    
+    /* Estilo para botones con borde */
+    .btn-outline {
+        background: transparent;           /* Fondo transparente */
+        border: 2px solid #1a1a2e;        /* Borde oscuro */
+        color: #1a1a2e;                   /* Texto oscuro */
+    }
+    
+    /* Efecto hover para botones con borde */
+    .btn-outline:hover {
+        background: #1a1a2e;               /* Fondo oscuro al pasar el ratón */
+        color: white;                     /* Texto blanco */
+    }
+    
+    /* Estilo base para etiquetas de stock */
+    .stock-badge {
+        display: inline-block;            /* Mostrar en línea */
+        padding: 5px 12px;                /* Relleno interno */
+        border-radius: 15px;              /* Bordes redondeados */
+        font-weight: 600;                 /* Negrita */
+        font-size: 0.85rem;               /* Tamaño de fuente reducido */
+        margin-left: 10px;                /* Margen izquierdo */
+    }
+    
+    /* Estilo para indicar que hay stock disponible */
+    .in-stock {
+        background: #e8f5e9;               /* Fondo verde claro */
+        color: #2e7d32;                   /* Texto verde oscuro */
+    }
+    
+    /* Estilo para indicar que no hay stock disponible */
+    .out-of-stock-badge {
+        background: #ffebee;               /* Fondo rojo claro */
+        color: #c62828;                    /* Texto rojo oscuro */
+    }
+    
+    /* Estilos responsivos para pantallas medianas y pequeñas */
+    @media (max-width: 768px) {
+        /* Ajustes para el contenedor principal */
+        .product-detail-container {
+            margin: 10px;                  /* Reducir márgenes en móviles */
+        }
+        
+        /* Ajustar tamaño de fuente del título */
+        .product-title {
+            font-size: 1.8rem;             /* Tamaño de fuente reducido */
+        }
+        
+        /* Ajustar tamaño de fuente del precio */
+        .product-price {
+            font-size: 1.8rem;             /* Tamaño de fuente reducido */
+        }
+    }
+</style>
+{% endblock %}
+
+<!-- 
+    CONTENIDO PRINCIPAL
+    ==================
+    Sección que contiene el detalle completo del producto.
+    Se muestra dentro del bloque 'content' de la plantilla base.
+-->
+{% block content %}
+<div class="container"> <!-- Contenedor Bootstrap para centrar el contenido y dar márgenes laterales -->
+    <!-- Contenedor principal del detalle del producto -->
+    <div class="product-detail-container"> <!-- Caja principal con estilos personalizados -->
+        <div class="row"> <!-- Fila Bootstrap para dividir en columnas -->
+            <!-- Columna de la imagen del producto -->
+            <div class="col-md-6"> <!-- Columna de 6/12 para imagen en pantallas medianas o mayores -->
+                <div class="product-gallery"> <!-- Galería de imágenes del producto -->
+                    <!-- Muestra la imagen del producto o una imagen por defecto si no hay imagen -->
+                    <div class="product-image-container">
+                        <img src="{{ producto.imagen_url|default:'/static/img/placeholder.png' }}"  
+                             alt="{{ producto.nombre }}"  
+                             class="img-fluid product-image"
+                             loading="lazy">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Columna de la información del producto -->
+            <div class="col-md-6"> <!-- Columna de 6/12 para información en pantallas medianas o mayores -->
+                <div class="product-info"> <!-- Contenedor de la información textual y acciones -->
+                    <!-- Título del producto -->
+                    <h1 class="product-title">{{ producto.nombre }}</h1> <!-- Nombre del producto -->
+                    <!-- Marca y modelo del producto -->
+                    <div class="product-brand">{{ producto.marca }} {{ producto.modelo }}</div> <!-- Marca y modelo -->
+                    
+                    <!-- Precio y disponibilidad -->
+                    <div class="product-price">
+                        ${{ producto.precio|floatformat:2 }} <!-- Precio con dos decimales -->
+                        {% if producto.stock > 0 %}
+                            <span class="stock-badge in-stock">En stock</span> <!-- Badge verde si hay stock -->
+                        {% else %}
+                            <span class="stock-badge out-of-stock-badge">Agotado</span> <!-- Badge rojo si no hay stock -->
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Metadatos del producto -->
+                    <div class="product-meta"> <!-- Sección de metadatos -->
+                        <!-- Categoría del producto -->
+                        <div class="meta-item">
+                            <span class="meta-label">Categoría:</span> <!-- Etiqueta de categoría -->
+                            <span class="meta-value">{{ producto.categoria.nombre }}</span> <!-- Nombre de la categoría -->
+                        </div>
+                        
+                        <!-- Disponibilidad en stock -->
+                        <div class="meta-item">
+                            <span class="meta-label">Disponibilidad:</span> <!-- Etiqueta de disponibilidad -->
+                            <span class="meta-value">
+                                {% if producto.stock > 0 %}
+                                    {{ producto.stock }} unidades disponibles <!-- Muestra cantidad si hay stock -->
+                                {% else %}
+                                    Sin stock <!-- Muestra mensaje si no hay stock -->
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <!-- Código de identificación del producto -->
+                        <div class="meta-item">
+                            <span class="meta-label">Código:</span> <!-- Etiqueta de código -->
+                            <span class="meta-value">#{{ producto.id|stringformat:"06d" }}</span> <!-- ID con formato de 6 dígitos -->
+                        </div>
+                    </div>
+                    
+                    <!-- Descripción del producto -->
+                    <div class="product-description">
+                        <h2 class="specs-title">Descripción</h2> <!-- Título de la sección de descripción -->
+                        <p>{{ producto.descripcion|linebreaksbr }}</p> <!-- Descripción con saltos de línea convertidos a <br> -->
+                    </div>
+                    
+                    <!-- Especificaciones técnicas (opcional) -->
+                    {% if producto.especificaciones %}
+                    <div class="product-specs"> <!-- Sección de especificaciones técnicas -->
+                        <h2 class="specs-title">Especificaciones técnicas</h2> <!-- Título de especificaciones -->
+                        <div class="specs-content">
+                            {{ producto.especificaciones|linebreaks }} <!-- Especificaciones con saltos de línea -->
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Acciones disponibles -->
+                    <div class="product-actions"> <!-- Contenedor de botones de acción -->
+                        <!-- Botón para añadir al carrito (solo si hay stock) -->
+                        {% if producto.stock > 0 %}
+                            <a href="{% url 'agregar_al_carrito' producto.id %}" class="btn-detail"
+                               aria-label="Añadir {{ producto.nombre }} al carrito">
+                                <i class="fas fa-cart-plus"></i> Añadir al carrito <!-- Icono y texto -->
+                            </a>
+                        {% else %}
+                            <button class="btn-detail" disabled>
+                                <i class="fas fa-times-circle"></i> Sin stock <!-- Icono y texto -->
+                            </button>
+                        {% endif %}
+                        
+                        <!-- Enlace para volver al catálogo -->
+                        <a href="{% url 'catalogo' %}" class="btn-detail btn-outline"
+                           aria-label="Volver al catálogo de productos">
+                            <i class="fas fa-arrow-left"></i> Volver al catálogo <!-- Icono y texto -->
+                        </a>
+                        
+                        <!-- Botones de administración (solo para personal autorizado) -->
+                        {% if user.is_staff %}
+                            <a href="{% url 'admin:tienda_producto_change' producto.pk %}" 
+                               class="btn-detail" 
+                               style="background: #ffc107; color: #000;"
+                               aria-label="Editar {{ producto.nombre }}">
+                                <i class="fas fa-edit"></i> Editar <!-- Icono y texto -->
+                            </a>
+                            <a href="{% url 'admin:tienda_producto_delete' producto.pk %}" 
+                               class="btn-detail" 
+                               style="background: #dc3545;"
+                               aria-label="Eliminar {{ producto.nombre }}">
+                                <i class="fas fa-trash-alt"></i> Eliminar <!-- Icono y texto -->
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div> <!-- Fin de la fila principal -->
+    </div> <!-- Fin del contenedor principal del detalle del producto -->
+</div> <!-- Fin del contenedor Bootstrap -->
+{% endblock %} <!-- Fin del bloque de contenido principal -->

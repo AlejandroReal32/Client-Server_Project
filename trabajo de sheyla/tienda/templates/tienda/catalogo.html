@@ -1,0 +1,347 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+
+{% comment %}
+    PLANTILLA CATÁLOGO - PC COMPONENT STORE
+    ====================================
+    Esta plantilla muestra el catálogo de productos con funcionalidades de:
+    - Búsqueda por texto (nombre, marca, modelo)
+    - Filtrado por categoría
+    - Paginación de resultados
+    - Vista de tarjetas de producto con acciones rápidas
+    
+    Variables de contexto esperadas:
+    - productos: QuerySet paginado de productos
+    - categorias: Lista de categorías para el filtro
+    - request.GET: Parámetros de búsqueda y filtrado
+{% endcomment %}
+
+{% block extra_css %}
+<!-- Estilos específicos para la página de catálogo de productos -->
+<style>
+    /* Sección de búsqueda y filtros */
+    .search-section {
+        background-color: #f8f9fa; /* Fondo gris claro */
+        padding: 20px 0;           /* Espaciado vertical */
+        margin-bottom: 40px;       /* Espaciado inferior */
+        border-radius: 10px;       /* Bordes redondeados */
+    }
+    
+    /* Formulario de búsqueda y filtros */
+    .search-form {
+        display: flex;             /* Disposición en fila */
+        gap: 10px;                 /* Espaciado entre elementos */
+        flex-wrap: wrap;           /* Permite salto de línea en móviles */
+    }
+    
+    /* Campos del formulario de búsqueda */
+    .search-form select,
+    .search-form input,
+    .search-form button {
+        padding: 10px 15px;        /* Espaciado interno */
+        border: 1px solid #ddd;    /* Borde gris claro */
+        border-radius: 5px;        /* Bordes redondeados */
+        font-size: 1em;            /* Tamaño de fuente */
+    }
+    
+    /* Selector de categoría */
+    .search-form select {
+        flex: 1;                   /* Ocupa espacio proporcional */
+        min-width: 200px;          /* Ancho mínimo */
+    }
+    
+    /* Campo de texto de búsqueda */
+    .search-form input {
+        flex: 3;                   /* Ocupa más espacio */
+        min-width: 250px;          /* Ancho mínimo */
+    }
+    
+    /* Botón de búsqueda */
+    .search-form button {
+        background-color: #1a1a2e; /* Fondo oscuro */
+        color: white;              /* Texto blanco */
+        border: none;              /* Sin borde */
+        cursor: pointer;           /* Cursor de mano */
+        transition: background-color 0.3s ease; /* Transición suave */
+    }
+    
+    .search-form button:hover {
+        background-color: #e94560; /* Fondo rojo al pasar el ratón */
+    }
+    
+    /* Botón para agregar nuevo producto */
+    .add-product-btn {
+        background-color: #1a1a2e; /* Fondo oscuro */
+        color: white;              /* Texto blanco */
+        padding: 10px 20px;        /* Espaciado interno */
+        border-radius: 5px;        /* Bordes redondeados */
+        text-decoration: none;     /* Sin subrayado */
+        display: inline-flex;      /* Disposición flexible en línea */
+        align-items: center;       /* Centrado vertical */
+        gap: 8px;                  /* Espaciado entre icono y texto */
+        transition: background-color 0.3s ease; /* Transición suave */
+    }
+    
+    .add-product-btn:hover {
+        background-color: #e94560; /* Fondo rojo al pasar el ratón */
+        color: white;              /* Texto blanco */
+    }
+    
+    /* Paginación de resultados */
+    .pagination {
+        display: flex;             /* Disposición en fila */
+        justify-content: center;   /* Centrado horizontal */
+        margin-top: 40px;          /* Espaciado superior */
+        gap: 5px;                  /* Espaciado entre páginas */
+    }
+    
+    .pagination a,
+    .pagination span {
+        padding: 8px 15px;         /* Espaciado interno */
+        border: 1px solid #ddd;    /* Borde gris claro */
+        border-radius: 5px;        /* Bordes redondeados */
+        text-decoration: none;     /* Sin subrayado */
+        color: #1a1a2e;            /* Texto oscuro */
+    }
+    
+    .pagination .active {
+        background-color: #1a1a2e; /* Fondo oscuro para la página activa */
+        color: white;              /* Texto blanco */
+        border-color: #1a1a2e;     /* Borde oscuro */
+    }
+    
+    .pagination a:hover:not(.active) {
+        background-color: #f0f0f0; /* Fondo gris claro al pasar el ratón */
+    }
+    
+    /* Estado cuando no hay productos */
+    .no-products {
+        text-align: center;        /* Centrado de texto */
+        padding: 60px 20px;        /* Espaciado interno */
+        background: white;         /* Fondo blanco */
+        border-radius: 10px;       /* Bordes redondeados */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    }
+    
+    .no-products i {
+        font-size: 3em;            /* Tamaño grande del ícono */
+        color: #e94560;            /* Color rojo */
+        margin-bottom: 20px;       /* Espaciado inferior */
+    }
+    
+    .no-products h4 {
+        color: #1a1a2e;            /* Color oscuro */
+        margin-bottom: 10px;       /* Espaciado inferior */
+    }
+    
+    .no-products p {
+        color: #666;               /* Color de texto */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section - Encabezado principal -->
+<section class="hero" aria-label="Bienvenido a PC Component Store">
+    <div class="container">
+        <h1>Encuentra los Mejores Componentes</h1>
+        <p>Calidad y rendimiento para tu PC al mejor precio</p>
+    </div>
+</section>
+
+<!-- Contenedor principal del catálogo -->
+<div class="container">
+    <!-- Sección de búsqueda y filtros -->
+    <div class="search-section" role="search" aria-label="Búsqueda de productos">
+        <div class="container">
+            <!-- Encabezado y botón de nuevo producto (solo para staff) -->
+            <div class="catalog-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0; color: #1a1a2e;">Nuestros Productos</h2>
+                {% if user.is_staff %}
+                <a href="{% url 'producto_nuevo' %}" class="add-product-btn" aria-label="Agregar nuevo producto">
+                    <i class="fas fa-plus" aria-hidden="true"></i> Nuevo Producto
+                </a>
+                {% endif %}
+            </div>
+            
+            <!-- Formulario de búsqueda y filtrado -->
+            <form method="get" class="search-form" aria-label="Formulario de búsqueda">
+                <!-- Selector de categoría -->
+                <select name="categoria" aria-label="Filtrar por categoría">
+                    <option value="">Todas las categorías</option>
+                    {% for cat in categorias %}
+                        <option value="{{ cat.id }}" 
+                                {% if cat.id|stringformat:'s' == request.GET.categoria %}selected{% endif %}>
+                            {{ cat.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+                
+                <!-- Campo de búsqueda por texto -->
+                <input type="text" 
+                       name="q" 
+                       placeholder="Buscar por nombre, marca, modelo..." 
+                       value="{{ request.GET.q }}"
+                       aria-label="Términos de búsqueda">
+                
+                <!-- Botón de envío del formulario -->
+                <button type="submit" aria-label="Buscar productos">
+                    <i class="fas fa-search" aria-hidden="true"></i> Buscar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sección de resultados de productos -->
+    {% if productos %}
+        <div class="products" role="region" aria-label="Lista de productos">
+            {% for producto in productos %}
+                <article class="product-card" aria-labelledby="product-{{ producto.id }}-title">
+                    <!-- Imagen del producto -->
+                    <div class="product-image">
+                        <img src="{% if producto.imagen_url %}{{ producto.imagen_url }}{% else %}{% static 'img/placeholder.png' %}{% endif %}" 
+                             alt="{{ producto.nombre }}" 
+                             loading="lazy"
+                             width="300"
+                             height="200">
+                        {% if producto.stock <= 0 %}
+                            <div class="out-of-stock" role="status" aria-live="polite">Agotado</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Información del producto -->
+                    <div class="product-info">
+                        <h3 id="product-{{ producto.id }}-title">{{ producto.nombre }}</h3>
+                        <p class="brand-model">{{ producto.marca }} {{ producto.modelo }}</p>
+                        <p class="description">{{ producto.descripcion|truncatewords:20 }}</p>
+                        
+                        <!-- Precio del producto -->
+                        <div class="price" aria-label="Precio">
+                            ${{ producto.precio|floatformat:2 }}
+                            {% if producto.stock > 0 %}
+                                <span class="sr-only">disponible</span>
+                            {% else %}
+                                <span class="sr-only">agotado</span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Acciones del producto -->
+                        <div class="product-actions">
+                            <!-- Botón para ver detalles -->
+                            <a href="{% url 'producto_detalle' producto.pk %}" 
+                               class="view-details-btn"
+                               aria-label="Ver detalles de {{ producto.nombre }}">
+                                Ver Detalles
+                            </a>
+                            
+                            <!-- Botón para agregar al carrito (solo si hay stock) -->
+                            {% if producto.stock > 0 %}
+                                <a href="{% url 'agregar_al_carrito' producto.id %}" 
+                                   class="add-to-cart-btn"
+                                   aria-label="Añadir {{ producto.nombre }} al carrito">
+                                    <i class="fas fa-cart-plus" aria-hidden="true"></i> Añadir
+                                </a>
+                            {% else %}
+                                <button class="out-of-stock-btn" disabled
+                                        aria-label="Producto agotado">
+                                    <i class="fas fa-times-circle" aria-hidden="true"></i> Sin stock
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Estado cuando no hay productos que coincidan con la búsqueda -->
+        <div class="no-products" role="alert" aria-live="polite">
+            <i class="fas fa-search" aria-hidden="true"></i>
+            <h4>No se encontraron productos</h4>
+            <p>Intenta con otros términos de búsqueda o categorías</p>
+        </div>
+    {% endif %}
+
+    <!-- Paginación de resultados -->
+    {% if productos.has_other_pages %}
+        <nav class="pagination" aria-label="Paginación de resultados">
+            <!-- Enlace a la página anterior -->
+            {% if productos.has_previous %}
+                <a href="?page={{ productos.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.categoria %}&categoria={{ request.GET.categoria }}{% endif %}"
+                   rel="prev"
+                   aria-label="Página anterior">
+                    &laquo; Anterior
+                </a>
+            {% else %}
+                <span class="disabled" aria-hidden="true">&laquo; Anterior</span>
+            {% endif %}
+            
+            <!-- Números de página -->
+            {% for i in productos.paginator.page_range %}
+                {% if productos.number == i %}
+                    <span class="active" aria-current="page">{{ i }} <span class="sr-only">(página actual)</span></span>
+                {% else %}
+                    <a href="?page={{ i }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.categoria %}&categoria={{ request.GET.categoria }}{% endif %}"
+                       aria-label="Ir a la página {{ i }}">
+                        {{ i }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+            
+            <!-- Enlace a la página siguiente -->
+            {% if productos.has_next %}
+                <a href="?page={{ productos.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.categoria %}&categoria={{ request.GET.categoria }}{% endif %}"
+                   rel="next"
+                   aria-label="Página siguiente">
+                    Siguiente &raquo;
+                </a>
+            {% else %}
+                <span class="disabled" aria-hidden="true">Siguiente &raquo;</span>
+            {% endif %}
+        </nav>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/**
+ * Actualiza el contador de productos en el carrito
+ * Realiza una petición al servidor para obtener la cantidad actual de productos
+ * y actualiza el contador en la barra de navegación
+ */
+function updateCartCount() {
+    fetch('{% url "api_carrito_cantidad" %}')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al obtener la cantidad del carrito');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const cartCount = document.getElementById('cart-count');
+            if (cartCount) {
+                if (data.cantidad > 0) {
+                    cartCount.textContent = data.cantidad;
+                    cartCount.style.display = 'inline-flex';
+                    cartCount.setAttribute('aria-live', 'polite');
+                } else {
+                    cartCount.style.display = 'none';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error al actualizar el carrito:', error);
+        });
+}
+
+// Inicialización cuando el DOM está completamente cargado
+document.addEventListener('DOMContentLoaded', function() {
+    // Actualizar el contador al cargar la página
+    updateCartCount();
+    
+    // Actualizar el contador periódicamente (cada 30 segundos)
+    // para mantener la sincronización con otros dispositivos/pestañas
+    setInterval(updateCartCount, 30000);
+});
+</script>
+{% endblock %}

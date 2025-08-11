@@ -1,0 +1,738 @@
+/* ============================================
+   VARIABLES CSS Y ESTILOS BASE
+   ============================================ */
+
+/**
+ * 1. VARIABLES PARA TEMA CLARO
+ *    Define las variables CSS para el tema claro de la aplicación.
+ *    Estas variables se utilizan en todo el CSS para mantener la consistencia visual.
+ */
+:root { 
+    scroll-behavior: smooth; /* Suaviza el desplazamiento de la página */
+    
+    /* Colores de fondo */
+    --bg-color: #f4f4f9; /* Color de fondo principal de la página */
+    --card-bg: #fff; /* Fondo de tarjetas y contenedores */
+    --header-bg: #1a1a2e; /* Color de fondo de la barra de navegación */
+    --footer-bg: #1a1a2e; /* Color de fondo del pie de página */
+    
+    /* Colores de texto */
+    --text-color: #333; /* Color de texto principal */
+    --text-muted: #666; /* Color para texto secundario/deshabilitado */
+    --price-color: #e94560; /* Color destacado para precios */
+    
+    /* Componentes de interfaz */
+    --border-color: #e0e0e0; /* Color para bordes y separadores */
+    --button-bg: #1a1a2e; /* Color de fondo para botones primarios */
+    --button-hover: #e94560; /* Color de hover para botones */
+    --input-bg: #fff; /* Fondo de campos de formulario */
+    --input-border: #ddd; /* Borde de campos de formulario */
+    
+    /* Sombras */
+    --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.05); /* Sombra pequeña */
+    --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra media */
+    --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.15); /* Sombra grande */
+    
+    /* Espaciados */
+    --spacing-xs: 0.25rem; /* 4px */
+    --spacing-sm: 0.5rem;  /* 8px */
+    --spacing-md: 1rem;    /* 16px */
+    --spacing-lg: 1.5rem;  /* 24px */
+    --spacing-xl: 2rem;    /* 32px */
+    
+    /* Bordes redondeados */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-full: 9999px; /* Para elementos completamente redondeados */
+    
+    /* Transiciones */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+}
+
+/**
+ * 2. VARIABLES PARA TEMA OSCURO
+ *    Sobrescribe las variables para el tema oscuro cuando se activa.
+ *    Se activa con el atributo data-theme="dark" en el elemento HTML.
+ */
+[data-theme="dark"] {
+    /* Colores de fondo */
+    --bg-color: #121212; /* Fondo oscuro principal */
+    --card-bg: #1e1e1e; /* Fondo de tarjetas en modo oscuro */
+    --header-bg: #0a0a1a; /* Color más oscuro para la barra de navegación */
+    --footer-bg: #0a0a1a; /* Igual que header para consistencia */
+    
+    /* Colores de texto */
+    --text-color: #e0e0e0; /* Texto claro sobre fondo oscuro */
+    --text-muted: #aaa; /* Texto secundario más claro */
+    --price-color: #ff6b8b; /* Color más brillante para mejor contraste */
+    
+    /* Componentes de interfaz */
+    --border-color: #333; /* Bordes más oscuros */
+    --button-bg: #2d2d5a; /* Botones con tono más oscuro */
+    --button-hover: #ff6b8b; /* Hover en rosa para mejor contraste */
+    --input-bg: #2d2d2d; /* Campos de entrada oscuros */
+    --input-border: #444; /* Bordes más oscuros para campos */
+    
+    /* Ajuste de sombras para modo oscuro */
+    --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+/**
+ * 3. ESTILOS BASE DEL DOCUMENTO
+ *    Establece los estilos básicos que se aplican a todo el documento.
+ */
+ 
+/* Establece el modelo de caja border-box para todos los elementos */
+*, *::before, *::after {
+    box-sizing: border-box; /* Incluye padding y border en el ancho/alto */
+}
+
+/* Estilos base del cuerpo del documento */
+body { 
+    font-family: 'Roboto', sans-serif; /* Fuente principal de la aplicación */
+    margin: 0; /* Elimina márgenes predeterminados */
+    padding: 0; /* Elimina relleno predeterminado */
+    background-color: var(--bg-color); /* Color de fondo usando variable */
+    color: var(--text-color); /* Color de texto usando variable */
+    line-height: 1.6; /* Altura de línea para mejor legibilidad */
+    -webkit-font-smoothing: antialiased; /* Mejora el renderizado de fuentes en WebKit */
+    -moz-osx-font-smoothing: grayscale; /* Mejora el renderizado en Firefox/macOS */
+    transition: background-color var(--transition-normal), 
+                color var(--transition-normal); /* Transiciones suaves para cambios de tema */
+}
+
+/**
+ * 4. CONTENEDOR PRINCIPAL
+ *    Estilos para el contenedor que centra y limita el ancho del contenido.
+ */
+.container { 
+    width: 100%; /* Ocupa todo el ancho disponible */
+    max-width: 1200px; /* Ancho máximo del contenido */
+    margin: 0 auto; /* Centra el contenedor horizontalmente */
+    padding: 0 var(--spacing-md); /* Espaciado interno a los lados */
+}
+
+/* Contenedor fluido (para secciones que ocupan todo el ancho) */
+.container-fluid {
+    width: 100%;
+    padding: 0 var(--spacing-md);
+}
+
+/* Contenedor pequeño para formularios y contenido estrecho */
+.container-sm {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+}
+
+/**
+ * 2. ENCABEZADO Y NAVEGACIÓN
+ *    Estilos para la barra de navegación superior
+ */
+
+/* --- Encabezado y Navegación --- */
+/* 
+ * Barra de navegación fija en la parte superior
+ * Incluye transición suave para cambios de tema
+ */
+/* Estilos para el encabezado fijo */
+header { 
+    background-color: var(--header-bg); /* Color de fondo del encabezado */
+    color: #fff; /* Color de texto blanco */
+    padding: 15px 0; /* Espaciado vertical interno */
+    border-bottom: 4px solid #0f3460; /* Borde inferior decorativo */
+    position: sticky; /* Fija el encabezado al hacer scroll */
+    top: 0; /* Lo posiciona en la parte superior */
+    z-index: 1000; /* Asegura que esté por encima de otros elementos */
+    transition: background-color 0.3s ease; /* Transición suave para cambios de tema */
+}
+/* Contenedor flexible para el encabezado */
+header .container { 
+    display: flex; /* Usa flexbox para alinear elementos */
+    justify-content: space-between; /* Espacio entre logo y navegación */
+    align-items: center; /* Centra verticalmente los elementos */
+}
+
+/* Estilos para el logo */
+header .logo { 
+    font-size: 1.8em; /* Tamaño de fuente grande */
+    font-weight: 700; /* Grosor de la fuente en negrita */
+    margin: 0; /* Elimina márgenes */
+    text-decoration: none; /* Sin subrayado */
+    display: flex; /* Usa flexbox para alinear ícono y texto */
+    align-items: center; /* Centra verticalmente */
+    gap: 10px; /* Espacio entre ícono y texto */
+}
+
+/* Estilo para el ícono del logo */
+header .logo i {
+    font-size: 1.2em; /* Tamaño del ícono */
+}
+
+/* ========== MENÚ DE NAVEGACIÓN ========== */
+/* Contenedor de la lista de navegación */
+header nav ul {
+    display: flex; /* Muestra los elementos en línea */
+    list-style: none; /* Elimina los estilos de lista */
+    margin: 0; /* Elimina el margen predeterminado */
+    padding: 0; /* Elimina el relleno predeterminado */
+    gap: 20px; /* Espacio entre elementos del menú */
+}
+
+/* Estilo para los enlaces del menú */
+header nav ul li a {
+    color: white; /* Color de texto blanco */
+    text-decoration: none; /* Sin subrayado */
+    font-size: 1.1em; /* Tamaño de fuente */
+    padding: 8px 15px; /* Relleno interno */
+    border-radius: 5px; /* Bordes redondeados */
+    transition: color 0.3s ease, background-color 0.3s ease; /* Transiciones suaves */
+}
+
+/* Efectos hover y estado activo para enlaces */
+header nav ul li a:hover, 
+header nav ul li a.active { 
+    background-color: #e94560; /* Fondo rojo al pasar el ratón */
+    color: #fff; /* Texto blanco */
+}
+
+/* ============================================
+   ACCIONES DE USUARIO EN EL ENCABEZADO
+   ============================================ */
+
+/**
+ * 3. ACCIONES DE USUARIO
+ *    Estilos para los controles de usuario en el encabezado
+ *    Incluye botones de inicio de sesión y carrito
+ */
+
+/* Contenedor para los controles de usuario (login, carrito) */
+.user-actions { 
+    display: flex; /* Usa flexbox para alinear elementos */
+    align-items: center; /* Centra verticalmente los elementos */
+    gap: 25px; /* Espacio entre elementos */
+}
+
+/* Estilos base para los enlaces de acciones de usuario */
+.user-actions a { 
+    color: #fff; /* Color de texto blanco */
+    text-decoration: none; /* Sin subrayado */
+    font-size: 1.1em; /* Tamaño de fuente */
+    transition: color 0.3s ease; /* Transición suave para el cambio de color */
+}
+
+/* Efecto hover para los enlaces de acciones de usuario */
+.user-actions a:hover {
+    color: #e94560; /* Cambia a rojo al pasar el ratón */
+}
+
+/* ========== ÍCONO DE CARRITO ========== */
+/* Contenedor del ícono del carrito */
+.cart-icon { 
+    position: relative; /* Permite posicionamiento absoluto del contador */
+    cursor: pointer; /* Cambia el cursor a mano al pasar el ratón */
+    font-size: 1.5em; /* Tamaño del ícono */
+    color: #fff; /* Color del ícono */
+    transition: color 0.3s ease; /* Transición suave para el cambio de color */
+}
+
+/* Efecto hover para el ícono del carrito */
+.cart-icon:hover {
+    color: #e94560; /* Cambia a rojo al pasar el ratón */
+}
+
+/* Contador de artículos en el carrito */
+#cart-count { 
+    position: absolute; /* Posicionamiento absoluto respecto al ícono */
+    top: -10px; /* Posición vertical (por encima del ícono) */
+    right: -10px; /* Posición horizontal (a la derecha del ícono) */
+    background-color: #e94560; /* Fondo rojo */
+    color: white; /* Texto blanco */
+    border-radius: 50%; /* Forma circular */
+    padding: 2px 6px; /* Espaciado interno */
+    font-size: 0.7em; /* Tamaño de fuente pequeño */
+    font-weight: bold; /* Texto en negrita */
+    min-width: 18px; /* Ancho mínimo para mantener la forma circular */
+    text-align: center; /* Centra el texto */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Sombra sutil */
+    transition: all 0.3s ease; /* Transición suave para efectos */
+}
+
+/* Efecto hover para el contador del carrito */
+.cart-icon:hover #cart-count {
+    transform: scale(1.1); /* Aumenta ligeramente el tamaño */
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3); /* Aumenta la sombra */
+}
+
+/**
+ * 4. CONTENIDO PRINCIPAL
+ *    Estilos para el área de contenido principal de la página
+ */
+
+/* Contenedor principal del contenido */
+main {
+    min-height: calc(100vh - 300px); /* Altura mínima basada en el viewport menos el espacio del header y footer */
+    padding: 40px 0 60px; /* Espaciado superior de 40px e inferior de 60px */
+    background-color: var(--bg-color); /* Color de fondo usando variable CSS */
+    margin-bottom: 40px; /* Margen inferior para separar del footer */
+    transition: background-color 0.3s ease; /* Transición suave para cambios de tema */
+}
+
+/**
+ * 5. SECCIÓN HERO
+ *    Estilos para la sección hero con imagen de fondo
+ *    Incluye superposición oscura para mejor legibilidad
+ */
+
+/* Sección hero con imagen de fondo y texto superpuesto */
+.hero { 
+    background: linear-gradient(rgba(22, 33, 62, 0.7), rgba(15, 52, 96, 0.7)), 
+                url('https://images.unsplash.com/photo-1555680202-c86f0e12f086?q=80&w=2070&auto=format&fit=crop') 
+                no-repeat center center/cover; /* Fondo con gradiente sobre imagen */
+    color: white; /* Color de texto blanco */
+    padding: 100px 20px; /* Relleno vertical de 100px, horizontal de 20px */
+    text-align: center; /* Alineación del texto al centro */
+    margin-bottom: 40px; /* Margen inferior de 40px */
+    position: relative; /* Establece contexto de posicionamiento */
+    z-index: 1; /* Asegura que esté por encima de otros elementos */
+}
+
+/* Capa oscura superpuesta para mejorar la legibilidad del texto */
+.hero::before {
+    content: ''; /* Necesario para que se muestre el pseudo-elemento */
+    position: absolute; /* Posicionamiento absoluto respecto al contenedor .hero */
+    top: 0; /* Alineación superior */
+    left: 0; /* Alineación izquierda */
+    right: 0; /* Alineación derecha */
+    bottom: 0; /* Alineación inferior */
+    background: rgba(0, 0, 0, 0.5); /* Fondo negro con 50% de opacidad */
+    z-index: -1; /* Coloca la capa detrás del contenido del hero */
+}
+
+.hero h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+}
+.hero p {
+    font-size: 1.2em;
+    max-width: 700px;
+    margin: 0 auto 30px;
+}
+
+/* ============================================
+   GRID DE PRODUCTOS Y TARJETAS
+   ============================================ */
+
+/**
+ * 1. CONTENEDOR PRINCIPAL DEL GRID
+ *    Estilos para la sección que contiene el grid de productos
+ */
+.product-grid { 
+    padding: 50px 0; /* Espaciado vertical de 50px */
+    background-color: var(--bg-color); /* Color de fondo usando variable */
+}
+
+/* Título de la sección de productos */
+.product-grid h2 { 
+    text-align: center; /* Centra el texto */
+    font-size: 2.2em; /* Tamaño de fuente grande */
+    margin-bottom: 40px; /* Espaciado inferior */
+    color: var(--text-color); /* Color del texto usando variable */
+    font-weight: 700; /* Grosor de fuente en negrita */
+    text-transform: uppercase; /* Texto en mayúsculas */
+    letter-spacing: 1px; /* Espaciado entre letras */
+}
+
+/**
+ * 2. GRID DE PRODUCTOS
+ *    Estilos para el contenedor grid que muestra los productos
+ */
+.products { 
+    display: grid; /* Activa CSS Grid */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Columnas responsivas */
+    gap: 30px; /* Espacio entre elementos del grid */
+    padding: 0 20px; /* Relleno horizontal */
+    max-width: 1400px; /* Ancho máximo del grid */
+    margin: 0 auto; /* Centra el grid horizontalmente */
+}
+
+/**
+ * 3. TARJETA DE PRODUCTO
+ *    Estilos para cada tarjeta de producto individual
+ */
+.product-card { 
+    background-color: var(--card-bg); /* Color de fondo usando variable */
+    border-radius: var(--radius-md); /* Bordes redondeados usando variable */
+    box-shadow: var(--shadow-sm); /* Sombra sutil usando variable */
+    text-align: center; /* Alineación del texto al centro */
+    padding: 20px; /* Espaciado interno */
+    transition: all var(--transition-normal); /* Transiciones suaves usando variable */
+    display: flex; /* Usa flexbox para el diseño */
+    flex-direction: column; /* Organiza los elementos en columna */
+    height: 100%; /* Ocupa toda la altura disponible */
+    border: 1px solid var(--border-color); /* Borde sutil usando variable */
+    overflow: hidden; /* Oculta cualquier contenido que se salga */
+}
+
+/* Efecto hover para la tarjeta */
+.product-card:hover { 
+    transform: translateY(-10px); /* Eleva ligeramente la tarjeta */
+    box-shadow: var(--shadow-lg); /* Sombra más pronunciada */
+    border-color: var(--button-hover); /* Borde con color de hover */
+}
+
+/**
+ * 4. IMAGEN DEL PRODUCTO
+ *    Estilos para el contenedor de la imagen del producto
+ */
+.product-image {
+    position: relative; /* Establece contexto para posicionamiento absoluto */
+    background: var(--bg-color); /* Color de fondo usando variable */
+    padding: 20px; /* Espaciado interno */
+    text-align: center; /* Centra la imagen horizontalmente */
+    height: 220px; /* Altura fija para todas las imágenes */
+    display: flex; /* Usa flexbox para centrar */
+    align-items: center; /* Centra verticalmente */
+    justify-content: center; /* Centra horizontalmente */
+    margin-bottom: 15px; /* Espaciado inferior */
+    border-radius: var(--radius-sm); /* Bordes redondeados */
+    overflow: hidden; /* Oculta cualquier desbordamiento */
+}
+
+/* Estilos para la imagen dentro del contenedor */
+.product-image img {
+    max-height: 100%; /* Altura máxima del 100% del contenedor */
+    max-width: 100%; /* Ancho máximo del 100% del contenedor */
+    object-fit: contain; /* Ajusta la imagen manteniendo su relación de aspecto */
+    transition: transform var(--transition-normal); /* Transición suave */
+    mix-blend-mode: multiply; /* Mejora la visualización de imágenes con fondo blanco */
+}
+
+/* Efecto de escala al pasar el ratón sobre la tarjeta */
+.product-card:hover .product-image img {
+    transform: scale(1.05); /* Aumenta ligeramente el tamaño de la imagen */
+}
+
+/* Indicador de producto agotado */
+.product-image .out-of-stock {
+    position: absolute; /* Posicionamiento absoluto */
+    top: 10px; /* Distancia desde arriba */
+    right: 10px; /* Distancia desde la derecha */
+    background: var(--price-color); /* Color de fondo usando variable */
+    color: white; /* Color de texto blanco */
+    padding: 5px 10px; /* Espaciado interno */
+    border-radius: var(--radius-full); /* Bordes completamente redondeados */
+    font-size: 0.8em; /* Tamaño de fuente pequeño */
+    font-weight: bold; /* Texto en negrita */
+    z-index: 2; /* Asegura que esté por encima de la imagen */
+}
+
+/**
+ * 5. INFORMACIÓN DEL PRODUCTO
+ *    Estilos para la sección de información debajo de la imagen
+ */
+.product-info {
+    padding: 15px 10px; /* Espaciado interno */
+    flex-grow: 1; /* Ocupa el espacio restante en la tarjeta */
+    display: flex; /* Usa flexbox para el diseño */
+    flex-direction: column; /* Organiza los elementos en columna */
+}
+
+/* Título del producto */
+.product-info h3 {
+    margin: 0 0 10px 0; /* Márgenes */
+    font-size: 1.2em; /* Tamaño de fuente */
+    color: var(--text-color); /* Color de texto usando variable */
+    font-weight: 600; /* Grosor de fuente */
+    line-height: 1.3; /* Altura de línea */
+    min-height: 2.8em; /* Altura mínima para dos líneas */
+    max-height: 2.8em; /* Altura máxima para dos líneas */
+    overflow: hidden; /* Oculta el texto que se desborda */
+    text-overflow: ellipsis; /* Añade puntos suspensivos */
+    display: -webkit-box; /* Compatibilidad con navegadores WebKit */
+    -webkit-line-clamp: 2; /* Limita a 2 líneas */
+    -webkit-box-orient: vertical; /* Orientación vertical */
+    line-clamp: 2; /* Estándar moderno para limitar líneas */
+    transition: color 0.3s ease; /* Transición suave para el cambio de color */
+}
+
+/* Estilo para la marca y modelo */
+.brand-model {
+    color: #666; /* Color de texto gris */
+    font-size: 0.9rem; /* Tamaño de fuente ligeramente más pequeño */
+    margin: 0 0 10px 0; /* Márgenes */
+    font-weight: 500; /* Grosor de la fuente */
+}
+
+/* Estilo para la descripción del producto */
+.description {
+    color: #666; /* Color de texto gris */
+    font-size: 0.85rem; /* Tamaño de fuente pequeño */
+    margin: 0 0 15px 0; /* Márgenes */
+    line-height: 1.5; /* Altura de línea para mejor legibilidad */
+    height: 4.2em; /* Altura fija para tres líneas */
+    overflow: hidden; /* Oculta el contenido que sobrepasa */
+    text-overflow: ellipsis; /* Añade puntos suspensivos al final del texto cortado */
+    display: -webkit-box; /* Necesario para line-clamp */
+    -webkit-line-clamp: 3; /* Limita a 3 líneas */
+    -webkit-box-orient: vertical; /* Necesario para line-clamp */
+    line-clamp: 3; /* Estándar moderno para limitar líneas */
+}
+
+/* Contenedor del precio */
+.price {
+    color: var(--price-color); /* Color del precio usando variable */
+    font-weight: bold; /* Texto en negrita */
+    font-size: 1.2em; /* Tamaño de fuente grande */
+    margin: 10px 0; /* Márgenes */
+    transition: color 0.3s ease; /* Transición suave para el cambio de color */
+    display: flex; /* Usa flexbox para alinear elementos */
+    align-items: center; /* Centra verticalmente */
+    justify-content: space-between; /* Espacio entre elementos */
+}
+/* ============================================
+   BOTONES DE ACCIÓN DE PRODUCTO
+   ============================================ */
+
+/**
+ * Contenedor para los botones de acción en la tarjeta de producto
+ * Organiza los botones en una fila con espacio entre ellos
+ */
+.product-actions { 
+    display: flex; /* Usa flexbox para alinear los botones en fila */
+    gap: 8px; /* Espacio uniforme entre botones */
+    margin-top: 15px; /* Separación del contenido superior */
+    padding: 0 5px; /* Pequeño relleno horizontal */
+}
+
+/**
+ * Botón de ver detalles del producto
+ * Diseñado para permitir a los usuarios ver más información sobre un producto
+ */
+.view-details-btn {
+    background: var(--button-bg); /* Color de fondo principal definido en variables */
+    color: white; /* Texto en color blanco para contraste */
+    border: none; /* Sin borde para un aspecto limpio */
+    padding: 10px 15px; /* Espaciado interno vertical y horizontal */
+    border-radius: 5px; /* Bordes ligeramente redondeados */
+    font-weight: 600; /* Texto en negrita para mejor legibilidad */
+    text-transform: uppercase; /* Texto en mayúsculas para énfasis */
+    font-size: 0.85rem; /* Tamaño de fuente ligeramente reducido */
+    letter-spacing: 0.5px; /* Espaciado entre letras para mejor legibilidad */
+    text-decoration: none; /* Elimina el subrayado de los enlaces */
+    transition: all 0.3s ease; /* Transición suave para efectos hover */
+    display: inline-flex; /* Permite alinear ícono y texto */
+    align-items: center; /* Centra verticalmente el contenido */
+    justify-content: center; /* Centra horizontalmente el contenido */
+    gap: 8px; /* Espacio entre el ícono y el texto */
+    flex: 1; /* Ocupa el espacio disponible en el contenedor */
+    text-align: center; /* Alineación central del texto */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Sombra sutil para efecto de elevación */
+    cursor: pointer; /* Cambia el cursor a mano al pasar sobre el botón */
+}
+
+/**
+ * Efecto hover para el botón de ver detalles
+ * Proporciona retroalimentación visual al usuario al interactuar
+ */
+.view-details-btn:hover {
+    background: var(--button-hover); /* Color de fondo más claro al pasar el ratón */
+    transform: translateY(-2px); /* Efecto de elevación sutil */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Aumenta la sombra para mayor profundidad */
+    color: white; /* Mantiene el texto en blanco */
+}
+
+/**
+ * Botón de añadir al carrito
+ * Diseñado para llamar la atención y facilitar la conversión
+ */
+.add-to-cart-btn {
+    background: var(--button-bg); /* Color de fondo principal */
+    color: white; /* Texto en blanco para contraste */
+    border: none; /* Sin borde para un aspecto limpio */
+    padding: 10px 15px; /* Espaciado interno consistente */
+    border-radius: 5px; /* Bordes redondeados para un aspecto moderno */
+    font-weight: 600; /* Texto en negrita para mejor visibilidad */
+    text-transform: uppercase; /* Texto en mayúsculas para énfasis */
+    font-size: 0.85rem; /* Tamaño de fuente consistente */
+    letter-spacing: 0.5px; /* Espaciado entre letras para legibilidad */
+    cursor: pointer; /* Indica que el elemento es clickeable */
+    transition: all 0.3s ease; /* Transición suave para efectos hover */
+    display: inline-flex; /* Permite alinear ícono y texto */
+    align-items: center; /* Centra verticalmente el contenido */
+    justify-content: center; /* Centra horizontalmente el contenido */
+    gap: 8px; /* Espacio entre el ícono y el texto */
+    flex: 1; /* Ocupa el espacio disponible en el contenedor */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Sombra sutil para profundidad */
+}
+
+/**
+ * Efecto hover para el botón de añadir al carrito
+ * Proporciona retroalimentación visual al usuario
+ */
+.add-to-cart-btn:hover {
+    background: var(--button-hover); /* Color de fondo más claro al interactuar */
+    transform: translateY(-2px); /* Efecto de elevación sutil */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Aumenta la sombra para profundidad */
+}
+
+/**
+ * Botón de producto agotado
+ * Indica visualmente que el producto no está disponible
+ */
+.out-of-stock-btn {
+    background: #f5f5f5; /* Fondo gris claro para indicar inactividad */
+    color: #666; /* Texto gris para indicar deshabilitado */
+    border: 1px solid #ddd; /* Borde sutil para definición */
+    padding: 10px 15px; /* Espaciado interno consistente */
+    border-radius: 5px; /* Bordes redondeados para coincidir con otros botones */
+    font-weight: 600; /* Mantiene el peso de la fuente consistente */
+    text-transform: uppercase; /* Texto en mayúsculas para consistencia */
+    font-size: 0.85rem; /* Tamaño de fuente consistente */
+    letter-spacing: 0.5px; /* Espaciado entre letras para legibilidad */
+    cursor: not-allowed; /* Indica que el botón no es clickeable */
+    display: inline-flex; /* Permite alinear ícono y texto */
+    align-items: center; /* Centra verticalmente el contenido */
+    justify-content: center; /* Centra horizontalmente el contenido */
+    gap: 8px; /* Espacio entre el ícono y el texto */
+    flex: 1; /* Ocupa el espacio disponible en el contenedor */
+    opacity: 0.8; /* Reduce ligeramente la opacidad */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Sombra muy sutil */
+}
+
+/**
+ * Etiqueta de producto agotado
+ * Se muestra como una etiqueta flotante en la esquina superior derecha del producto
+ */
+.out-of-stock {
+    position: absolute; /* Permite posicionamiento preciso */
+    top: 10px; /* Distancia desde el borde superior */
+    right: 10px; /* Distancia desde el borde derecho */
+    background: #ff4444; /* Fondo rojo para indicar indisponibilidad */
+    color: white; /* Texto en blanco para contraste */
+    padding: 5px 10px; /* Espaciado interno compacto */
+    border-radius: 15px; /* Bordes muy redondeados para un aspecto de etiqueta */
+    font-size: 0.75rem; /* Tamaño de fuente pequeño */
+    font-weight: 600; /* Texto en negrita para mejor visibilidad */
+    text-transform: uppercase; /* Texto en mayúsculas para énfasis */
+    letter-spacing: 0.5px; /* Espaciado entre letras para legibilidad */
+    z-index: 1; /* Asegura que esté por encima de otros elementos */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Sombra sutil para profundidad */
+}
+
+/* --- Pie de Página --- */
+
+/* Contenedor principal del footer */
+footer {
+    background-color: var(--footer-bg); /* Color de fondo usando variable del tema */
+    color: #fff; /* Color de texto blanco */
+    padding: 60px 0 20px; /* Espaciado vertical: 60px arriba, 20px abajo */
+    margin-top: 0; /* Elimina el margen superior */
+}
+
+/* Contenedor del contenido del footer */
+.footer-content { 
+    display: flex; /* Usa flexbox para organizar las secciones */
+    justify-content: space-between; /* Distribuye el espacio entre secciones */
+    flex-wrap: wrap; /* Permite que las secciones pasen a la siguiente línea en pantallas pequeñas */
+    margin-bottom: 40px; /* Espaciado inferior */
+    padding: 0 20px; /* Relleno horizontal */
+    max-width: 1200px; /* Ancho máximo del contenido */
+    margin-left: auto; /* Centra el contenido */
+    margin-right: auto; /* Centra el contenido */
+}
+
+/* Títulos de las secciones del footer */
+.footer-content h3 {
+    color: #fff; /* Color de texto blanco */
+    margin-bottom: 15px; /* Espaciado inferior */
+    font-size: 1.2rem; /* Tamaño de fuente */
+    text-transform: uppercase; /* Texto en mayúsculas */
+    letter-spacing: 1px; /* Espaciado entre letras */
+}
+
+/* Estilos para los enlaces del footer */
+.footer-content a {
+    color: #dcdcdc; /* Color de texto gris claro */
+    text-decoration: none; /* Sin subrayado */
+    transition: color 0.3s ease; /* Transición suave para el efecto hover */
+    display: block; /* Hace que cada enlace ocupe su propia línea */
+    margin-bottom: 8px; /* Espaciado entre enlaces */
+}
+
+/* Efecto hover para los enlaces */
+.footer-content a:hover {
+    color: #e94560; /* Color rojo al pasar el ratón */
+    padding-left: 5px; /* Desplazamiento a la derecha */
+}
+
+/* Sección de copyright en la parte inferior */
+.copyright { 
+    text-align: center; /* Centra el texto */
+    margin-top: 40px; /* Espaciado superior */
+    padding: 20px 20px 0; /* Relleno: 20px arriba y a los lados, 0 abajo */
+    border-top: 1px solid rgba(255, 255, 255, 0.1); /* Borde superior sutil */
+    font-size: 0.9em; /* Tamaño de fuente pequeño */
+    color: rgba(255, 255, 255, 0.7); /* Color de texto con transparencia */
+    max-width: 1200px; /* Ancho máximo */
+    margin-left: auto; /* Centra el contenido */
+    margin-right: auto; /* Centra el contenido */
+}
+/* --- Alertas y Mensajes de Error --- */
+
+/* Estilo base para mensajes de error */
+.alert-error {
+    background-color: #f8d7da; /* Fondo rojo claro */
+    border: 1px solid #f5c6cb; /* Borde rojo más oscuro */
+    color: #721c24; /* Color de texto rojo oscuro */
+    padding: 12px 15px; /* Espaciado interno */
+    border-radius: 5px; /* Bordes redondeados */
+    margin: 15px 0; /* Margen vertical */
+    font-size: 0.95rem; /* Tamaño de fuente ligeramente reducido */
+    line-height: 1.5; /* Altura de línea para mejor legibilidad */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Sombra sutil */
+    transition: all 0.3s ease; /* Transición suave para efectos hover */
+}
+
+/* Efecto hover para mensajes de error */
+.alert-error:hover {
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1); /* Aumenta la sombra al pasar el ratón */
+    transform: translateY(-1px); /* Efecto de elevación sutil */
+}
+
+/* ============================================
+   ESTILOS RESPONSIVOS (MEDIA QUERIES)
+   ============================================ */
+
+/* Estilos para pantallas con ancho máximo de 768px (tablets y móviles) */
+@media (max-width: 768px) {
+    /* Contenedor del encabezado: cambia a disposición de columna */
+    header .container {
+        flex-direction: column; /* Apila los elementos verticalmente */
+        text-align: center; /* Centra el texto */
+    }
+    
+    /* Menú de navegación en móviles */
+    header nav ul {
+        margin: 15px 0; /* Añade espacio vertical */
+        flex-wrap: wrap; /* Permite que los elementos se envuelvan */
+        justify-content: center; /* Centra los elementos del menú */
+    }
+    
+    /* Ajuste del grid de productos para pantallas pequeñas */
+    .products {
+        /* Reduce el ancho mínimo de las tarjetas para que quepan más en pantallas pequeñas */
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+    
+    /* Cambia la disposición del footer a columna en móviles */
+    .footer-content {
+        flex-direction: column; /* Apila las secciones verticalmente */
+        gap: 30px; /* Aumenta el espacio entre secciones */
+    }
+}

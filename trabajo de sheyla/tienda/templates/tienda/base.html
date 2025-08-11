@@ -1,0 +1,267 @@
+<!-- 
+    PLANTILLA BASE - PC COMPONENT STORE
+    =================================
+    Esta es la plantilla base que sirve como estructura principal para todas las páginas del sitio.
+    Incluye la cabecera, menú de navegación, pie de página y la lógica de cambio de tema.
+    
+    Bloques disponibles para extender:
+    - extra_css: Para añadir estilos específicos de página
+    - content: Contenido principal de cada página
+    - extra_js: Para añadir scripts específicos de página
+-->
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Metadatos básicos -->
+    <meta charset="UTF-8"> <!-- Codificación de caracteres -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Escalado responsivo -->
+    <title>PC Component Store</title> <!-- Título de la pestaña/navegador -->
+    
+    <!-- Google Fonts - Fuente Roboto -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"> <!-- Optimiza la carga de fuentes -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"> <!-- Fuente Roboto -->
+    
+    <!-- Font Awesome - Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> <!-- Iconos para UI -->
+    
+    <!-- CSS personalizado - Tema principal -->
+    <link rel="stylesheet" href="{% static 'tienda/css/nuevo_estilo.css' %}" id="theme-style"> <!-- Hoja de estilos principal -->
+    
+    <!-- Bloque para estilos adicionales específicos de página -->
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Estilos para el botón de cambio de tema -->
+    <style>
+        /* Estilo del botón de cambio de tema */
+        .theme-toggle {
+            background: none;               /* Sin fondo */
+            border: none;                  /* Sin borde */
+            color: #fff;                   /* Color del ícono */
+            cursor: pointer;               /* Cursor de mano */
+            font-size: 1.2em;              /* Tamaño del ícono */
+            margin-left: 15px;             /* Margen izquierdo */
+            display: flex;                 /* Flexbox para alinear ícono y texto */
+            align-items: center;           /* Centrado vertical */
+            gap: 5px;                      /* Espacio entre ícono y texto */
+        }
+        
+        /* Estilo del ícono dentro del botón */
+        .theme-toggle i {
+            transition: transform 0.3s ease; /* Transición suave para la animación */
+        }
+        
+        /* Efecto hover del botón */
+        .theme-toggle:hover i {
+            transform: rotate(30deg);       /* Rotación del ícono al pasar el ratón */
+        }
+    </style>
+</head>
+<body>
+    <!-- Cabecera del sitio -->
+    <header>
+        <div class="container"> <!-- Contenedor principal de la cabecera -->
+            <!-- Logo y enlace al inicio -->
+            <a href="{% url 'catalogo' %}" class="logo" aria-label="Ir al inicio">PCStore 💻</a>
+            
+            <!-- Menú de navegación principal -->
+            <nav aria-label="Navegación principal">
+                <ul class="nav-links">
+                    <!-- Enlace de inicio con clase activa cuando corresponde -->
+                    <li>
+                        <a href="{% url 'catalogo' %}" class="{% if request.path == '/catalogo/' %}active{% endif %}">
+                            Inicio
+                        </a>
+                    </li>
+                    
+                    <!-- Enlace de administración solo para personal autorizado -->
+                    {% if user.is_staff %}
+                    <li>
+                        <a href="{% url 'admin:tienda_categoria_changelist' %}" aria-label="Administrar categorías">
+                            Administrar Categorías
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            
+            <!-- Acciones de usuario -->
+            <div class="user-actions">
+                {% if user.is_authenticated %}
+                    <!-- Botón para cambiar entre tema claro/oscuro -->
+                    <button class="theme-toggle" id="theme-toggle" aria-label="Cambiar tema" title="Cambiar entre modo claro y oscuro">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    
+                    <!-- Icono del carrito con contador -->
+                    <a href="{% url 'ver_carrito' %}" class="cart-icon" aria-label="Ver carrito de compras">
+                        <i class="fas fa-shopping-cart"></i>
+                        {% if user.carrito.items.exists %}
+                            <span id="cart-count" aria-live="polite">{{ user.carrito.items.count }}</span>
+                        {% else %}
+                            <span id="cart-count" style="display: none;" aria-live="polite">0</span>
+                        {% endif %}
+                    </a>
+                    
+                    <!-- Menú desplegable del usuario -->
+                    <div class="dropdown">
+                        <a href="#" class="user-name" aria-expanded="false" aria-haspopup="true">
+                            <i class="fas fa-user-circle"></i> {{ user.username }}
+                            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                        </a>
+                        <div class="dropdown-content" aria-label="Menú de usuario">
+                            <a href="{% url 'logout' %}">Cerrar sesión</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Enlaces para usuarios no autenticados -->
+                    <a href="{% url 'login' %}" class="login-btn">Iniciar sesión</a>
+                    <a href="{% url 'registro' %}" class="register-btn">Registrarse</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+    
+    <!-- Contenido principal de la página -->
+    <main>
+        <!-- Sistema de mensajes para notificaciones -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" role="alert" aria-live="polite">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <!-- Bloque principal que será reemplazado por el contenido de cada página -->
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Pie de página -->
+    <footer>
+        <div class="container footer-content">
+            <!-- Información de contacto -->
+            <div class="contact-info">
+                <h3>Contáctanos</h3>
+                <p>¿Tienes preguntas? ¡Estamos aquí para ayudarte!</p>
+                <p>
+                    <i class="fas fa-envelope" aria-hidden="true"></i> 
+                    <a href="mailto:soporte@pcstore.com">soporte@pcstore.com</a>
+                </p>
+                <p>
+                    <i class="fas fa-phone" aria-hidden="true"></i> +1 (555) 123-4567
+                </p>
+                <p>
+                    <i class="far fa-clock" aria-hidden="true"></i> Lunes a Viernes, 9:00 AM - 6:00 PM
+                </p>
+            </div>
+            
+            <!-- Enlaces a redes sociales -->
+            <div class="social-media">
+                <h3>Síguenos</h3>
+                <a href="#" aria-label="Síguenos en Facebook">
+                    <i class="fab fa-facebook" aria-hidden="true"></i> Facebook
+                </a><br>
+                <a href="#" aria-label="Síguenos en Twitter">
+                    <i class="fab fa-twitter" aria-hidden="true"></i> Twitter
+                </a><br>
+                <a href="#" aria-label="Síguenos en Instagram">
+                    <i class="fab fa-instagram" aria-hidden="true"></i> Instagram
+                </a>
+            </div>
+        </div>
+        
+        <!-- Copyright -->
+        <div class="copyright">
+            <p>&copy; 2025 PCStore. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts de terceros -->
+    <!-- jQuery - Biblioteca JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Script para el menú desplegable en móviles -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos del menú móvil
+            const menuToggle = document.querySelector('.menu-toggle');
+            const nav = document.querySelector('nav ul');
+            
+            // Configurar el evento de clic para el botón de menú en móviles
+            if (menuToggle) {
+                menuToggle.addEventListener('click', function() {
+                    nav.classList.toggle('active');
+                    const expanded = this.getAttribute('aria-expanded') === 'true' || false;
+                    this.setAttribute('aria-expanded', !expanded);
+                });
+            }
+        });
+    </script>
+    
+    <!-- Bloque para scripts adicionales específicos de página -->
+    {% block extra_js %}{% endblock %}
+    
+    <!-- Script para el manejo del tema claro/oscuro -->
+    <script>
+        /**
+         * Aplica el tema guardado en localStorage o usa las preferencias del sistema
+         */
+        function applyTheme() {
+            // Obtener el tema guardado o detectar preferencia del sistema
+            const theme = localStorage.getItem('theme') || 
+                         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            
+            // Aplicar el tema al documento
+            document.documentElement.setAttribute('data-theme', theme);
+            
+            // Actualizar el ícono del botón según el tema actual
+            const icon = document.querySelector('#theme-toggle i');
+            if (icon) {
+                icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                icon.setAttribute('aria-label', theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+            }
+        }
+        
+        // Inicialización cuando el DOM está completamente cargado
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar el botón de cambio de tema
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    // Determinar el tema actual
+                    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    
+                    // Guardar preferencia en localStorage
+                    localStorage.setItem('theme', newTheme);
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    
+                    // Actualizar ícono y texto alternativo
+                    const icon = this.querySelector('i');
+                    if (icon) {
+                        icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                        icon.setAttribute('aria-label', newTheme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+                    }
+                    
+                    // Opcional: Emitir evento personalizado para notificar el cambio de tema
+                    document.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: newTheme } }));
+                });
+            }
+            
+            // Aplicar el tema al cargar la página
+            applyTheme();
+            
+            // Escuchar cambios en las preferencias del sistema
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                if (!localStorage.getItem('theme')) {
+                    // Solo aplicar si el usuario no ha establecido una preferencia
+                    applyTheme();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

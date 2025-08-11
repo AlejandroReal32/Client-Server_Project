@@ -1,0 +1,36 @@
+/* 
+ * Estilos base para la aplicación de tienda
+ * Contiene estilos generales para elementos comunes como body, tarjetas, botones y tablas
+ */
+
+/* Establece el color de fondo para toda la página */
+body {
+    background-color: #f4f6fa;  /* Color de fondo gris azulado claro */
+}
+
+/* Estilos para las tarjetas de producto */
+.card {
+    border-radius: 12px;         /* Bordes redondeados */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);  /* Sutil sombra para efecto de elevación */
+}
+
+/* Estilo para la marca/logo en la barra de navegación */
+.navbar-brand {
+    font-weight: bold;          /* Texto en negrita */
+    letter-spacing: 1px;        /* Espaciado entre letras */
+}
+
+/* Estilos comunes para botones de diferentes colores */
+.btn-primary, 
+.btn-success, 
+.btn-warning, 
+.btn-danger {
+    border-radius: 6px;         /* Bordes redondeados para los botones */
+}
+
+/* Estilos para tablas */
+.table {
+    background: #fff;           /* Fondo blanco */
+    border-radius: 8px;         /* Bordes redondeados */
+    overflow: hidden;           /* Asegura que los bordes redondeados se apliquen correctamente */
+}

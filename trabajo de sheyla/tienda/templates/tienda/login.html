@@ -1,0 +1,379 @@
+{% extends 'tienda/base.html' %}
+{% comment %}
+    PLANTILLA DE INICIO DE SESIÓN - PC COMPONENT STORE
+    ==============================================
+    Esta plantilla muestra el formulario de inicio de sesión con:
+    - Campos para usuario y contraseña
+    - Validación de credenciales
+    - Enlace a la página de registro
+    - Diseño responsivo y accesible
+    
+    Variables de contexto esperadas:
+    - form: Formulario de autenticación de Django
+    - next: URL de redirección después del inicio de sesión (opcional)
+{% endcomment %}
+
+{% block title %}Iniciar Sesión - PC Component Store{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Contenedor principal del formulario */
+    .login-container {
+        max-width: 500px;
+        margin: 60px auto;
+        padding: 0 20px;
+    }
+    
+    /* Tarjeta del formulario */
+    .login-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        border: 1px solid #e0e0e0;
+    }
+    
+    /* Encabezado de la tarjeta */
+    .login-header {
+        background: #1a1a2e;
+        color: white;
+        padding: 25px;
+        text-align: center;
+    }
+    
+    .login-header h1 {
+        margin: 0;
+        font-size: 1.8em;
+        font-weight: 600;
+    }
+    
+    /* Cuerpo del formulario */
+    .login-body {
+        padding: 30px;
+    }
+    
+    /* Grupo de campos del formulario */
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #333;
+    }
+    
+    /* Campos de entrada */
+    .form-control {
+        width: 100%;
+        padding: 12px 15px 12px 45px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1em;
+        transition: border-color 0.3s;
+        box-sizing: border-box;
+    }
+    
+    .form-control:focus {
+        border-color: #1a1a2e;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(26, 26, 46, 0.1);
+    }
+    
+    /* Botón de inicio de sesión */
+    .btn-login {
+        display: block;
+        width: 100%;
+        padding: 14px;
+        background: #1a1a2e;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 1.1em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .btn-login:hover {
+        background: #e94560;
+    }
+    
+    /* Pie del formulario */
+    .login-footer {
+        margin-top: 25px;
+        text-align: center;
+        color: #666;
+        font-size: 0.95em;
+    }
+    
+    .login-footer a {
+        color: #1a1a2e;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.3s;
+        margin-left: 5px;
+        display: inline-block;
+    }
+    
+    .login-footer a:hover {
+        color: #e94560;
+        text-decoration: underline;
+    }
+    
+    /* Mensaje de alerta */
+    .alert {
+        padding: 15px;
+        margin-bottom: 25px;
+        border-radius: 5px;
+        font-size: 0.95em;
+        display: flex;
+        align-items: center;
+    }
+    
+    .alert i {
+        margin-right: 10px;
+    }
+    
+    .alert-danger {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    /* Contenedor de ícono */
+    .input-icon {
+        position: relative;
+        width: 100%;
+    }
+    
+    .input-icon i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #666;
+        z-index: 1;
+    }
+    
+    /* Estilos para el enlace de olvidé mi contraseña */
+    .forgot-password {
+        display: block;
+        text-align: right;
+        margin-top: 5px;
+        font-size: 0.85em;
+    }
+    
+    .forgot-password a {
+        color: #666;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+    
+    .forgot-password a:hover {
+        color: #e94560;
+        text-decoration: underline;
+    }
+    
+    /* Estilos responsivos */
+    @media (max-width: 576px) {
+        .login-container {
+            margin: 30px auto;
+            padding: 0 15px;
+        }
+        
+        .login-body {
+            padding: 20px;
+        }
+        
+        .login-header {
+            padding: 20px 15px;
+        }
+        
+        .login-header h1 {
+            font-size: 1.5em;
+        }
+        
+        .btn-login {
+            padding: 12px;
+            font-size: 1em;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Contenedor principal del formulario de inicio de sesión -->
+<div class="login-container" role="main" aria-label="Formulario de inicio de sesión">
+    <div class="login-card">
+        <!-- Encabezado de la tarjeta de inicio de sesión -->
+        <header class="login-header">
+            <h1>Iniciar Sesión</h1>
+        </header>
+        
+        <!-- Cuerpo del formulario -->
+        <div class="login-body">
+            <!-- Mensaje de error si las credenciales son incorrectas -->
+            {% if form.errors %}
+            <div class="alert alert-danger" role="alert" aria-live="assertive">
+                <i class="fas fa-exclamation-circle me-2" aria-hidden="true"></i>
+                Usuario o contraseña incorrectos. Por favor, inténtalo de nuevo.
+            </div>
+            {% endif %}
+            
+            <!-- Formulario de inicio de sesión -->
+            <form method="post" class="login-form" aria-label="Formulario de inicio de sesión">
+                {% csrf_token %}
+                {% if next %}
+                    <input type="hidden" name="next" value="{{ next }}">
+                {% endif %}
+                
+                <!-- Campo de nombre de usuario -->
+                <div class="form-group">
+                    <label for="id_username">Usuario</label>
+                    <div class="input-icon">
+                        <i class="fas fa-user" aria-hidden="true"></i>
+                        <input type="text" 
+                               name="username" 
+                               id="id_username" 
+                               class="form-control" 
+                               placeholder="Ingresa tu usuario" 
+                               required
+                               autocomplete="username"
+                               aria-required="true"
+                               aria-describedby="username-help">
+                    </div>
+                    <small id="username-help" class="form-text text-muted">Ingresa tu nombre de usuario registrado</small>
+                </div>
+                
+                <!-- Campo de contraseña -->
+                <div class="form-group">
+                    <div class="d-flex justify-content-between">
+                        <label for="id_password">Contraseña</label>
+                        <!-- Elimina completamente el enlace para evitar el error -->
+                    </div>
+                    <div class="input-icon">
+                        <i class="fas fa-lock" aria-hidden="true"></i>
+                        <input type="password" 
+                               name="password" 
+                               id="id_password" 
+                               class="form-control" 
+                               placeholder="Ingresa tu contraseña" 
+                               required
+                               autocomplete="current-password"
+                               aria-required="true"
+                               aria-describedby="password-help">
+                    </div>
+                    <small id="password-help" class="form-text text-muted">Ingresa tu contraseña</small>
+                </div>
+                
+                <!-- Botón de envío del formulario -->
+                <div class="form-group">
+                    <button type="submit" class="btn-login" aria-label="Iniciar sesión">
+                        <i class="fas fa-sign-in-alt me-2" aria-hidden="true"></i>Iniciar Sesión
+                    </button>
+                </div>
+                
+                <!-- Enlace al formulario de registro -->
+                <div class="login-footer">
+                    ¿No tienes una cuenta? 
+                    <a href="{% url 'registro' %}" aria-label="Ir al formulario de registro">
+                        Regístrate aquí
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Script para mejorar la accesibilidad del formulario -->
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Enfocar automáticamente el campo de usuario al cargar la página
+    const usernameField = document.getElementById('id_username');
+    if (usernameField) {
+        usernameField.focus();
+    }
+    
+    // Mejorar la accesibilidad de los campos de formulario
+    const formInputs = document.querySelectorAll('input[type="text"], input[type="password"]');
+    formInputs.forEach(input => {
+        // Agregar atributos ARIA faltantes
+        if (!input.hasAttribute('aria-describedby')) {
+            const helpId = input.id + '-help';
+            const helpText = input.getAttribute('placeholder') || '';
+            if (helpText) {
+                input.setAttribute('aria-describedby', helpId);
+                
+                // Crear elemento de ayuda si no existe
+                if (!document.getElementById(helpId)) {
+                    const helpElement = document.createElement('small');
+                    helpElement.id = helpId;
+                    helpElement.className = 'form-text text-muted';
+                    helpElement.textContent = helpText;
+                    input.parentNode.appendChild(helpElement);
+                }
+            }
+        }
+    });
+    
+    // Validación de formulario en tiempo real
+    const loginForm = document.querySelector('.login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(event) {
+            const username = document.getElementById('id_username');
+            const password = document.getElementById('id_password');
+            
+            // Validación básica del lado del cliente
+            if (!username.value.trim()) {
+                showError('Por favor ingresa tu nombre de usuario');
+                username.focus();
+                event.preventDefault();
+                return false;
+            }
+            
+            if (!password.value) {
+                showError('Por favor ingresa tu contraseña');
+                password.focus();
+                event.preventDefault();
+                return false;
+            }
+            
+            return true;
+        });
+    }
+    
+    // Función para mostrar mensajes de error
+    function showError(message) {
+        // Eliminar mensajes de error existentes
+        const existingAlerts = document.querySelectorAll('.alert.alert-danger');
+        existingAlerts.forEach(alert => alert.remove());
+        
+        // Crear y mostrar nuevo mensaje de error
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger';
+        alertDiv.setAttribute('role', 'alert');
+        alertDiv.setAttribute('aria-live', 'assertive');
+        alertDiv.innerHTML = `
+            <i class="fas fa-exclamation-circle me-2" aria-hidden="true"></i>
+            ${message}
+        `;
+        
+        // Insertar el mensaje al principio del formulario
+        const form = document.querySelector('.login-form');
+        if (form) {
+            form.insertBefore(alertDiv, form.firstChild);
+            
+            // Desplazarse al mensaje de error
+            alertDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

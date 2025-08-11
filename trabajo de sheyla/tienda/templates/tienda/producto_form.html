@@ -1,0 +1,331 @@
+{% comment %}
+    PLANTILLA DE FORMULARIO DE PRODUCTO - PC COMPONENT STORE
+    ==================================================
+    Esta plantilla muestra un formulario genérico para crear o editar productos.
+    Se adapta dinámicamente según el modelo de formulario proporcionado.
+    
+    Variables de contexto esperadas:
+    - titulo: Título del formulario (ej: "Nuevo Producto" o "Editar Producto")
+    - form: Instancia del formulario de Django para el modelo Producto
+    - object: Instancia del objeto que se está editando (opcional, para edición)
+{% endcomment %}
+
+{% extends 'tienda/base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }} - PC Component Store{% endblock %}
+
+{% block extra_css %}
+<!-- Estilos específicos para el formulario de producto -->
+<style>
+    /* Contenedor principal del formulario de producto */
+    .product-form {
+        background: white;              /* Fondo blanco */
+        border-radius: 8px;             /* Bordes redondeados */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Sombra suave */
+        padding: 2rem;                  /* Espaciado interno */
+    }
+    
+    /* Etiqueta de los campos */
+    .form-label {
+        font-weight: 500;               /* Negrita */
+        margin-bottom: 0.5rem;          /* Espaciado inferior */
+    }
+    
+    /* Campos de entrada, select y archivos */
+    .form-control, .form-select, .form-file-input {
+        border-radius: 6px;             /* Bordes redondeados */
+        padding: 0.5rem 0.75rem;        /* Espaciado interno */
+    }
+    
+    /* Efecto al enfocar campos */
+    .form-control:focus, .form-select:focus, .form-file-input:focus {
+        border-color: #1a1a2e;          /* Borde oscuro */
+        box-shadow: 0 0 0 0.25rem rgba(26, 26, 46, 0.1); /* Sombra suave */
+    }
+    
+    /* Botón de guardar */
+    .btn-save {
+        background-color: #1a1a2e;      /* Fondo oscuro */
+        border: none;                   /* Sin borde */
+        padding: 0.5rem 1.5rem;         /* Espaciado interno */
+        font-weight: 500;               /* Negrita */
+    }
+    
+    .btn-save:hover {
+        background-color: #e94560;      /* Fondo rojo al pasar el ratón */
+    }
+    
+    /* Vista previa de imagen */
+    .preview-image {
+        max-width: 200px;               /* Ancho máximo */
+        max-height: 200px;              /* Alto máximo */
+        margin-top: 1rem;               /* Espaciado superior */
+        border: 1px solid #dee2e6;      /* Borde gris claro */
+        border-radius: 4px;             /* Bordes redondeados */
+        padding: 0.25rem;               /* Espaciado interno */
+    }
+    
+    /* Indicador de campo requerido */
+    .required-field::after {
+        content: ' *';                  /* Asterisco */
+        color: #dc3545;                 /* Color rojo */
+    }
+    
+    /* Grupo de precio */
+    .price-input-group {
+        max-width: 300px;               /* Ancho máximo */
+    }
+    
+    /* Contenedor de vista previa de imagen */
+    .image-preview-container {
+        margin-top: 0.5rem;             /* Espaciado superior */
+    }
+    
+    /* Mensajes de validación */
+    .invalid-feedback {
+        display: block;                 /* Mostrar siempre */
+        width: 100%;                    /* Ancho completo */
+        margin-top: 0.25rem;            /* Espaciado superior */
+        font-size: 0.875em;             /* Tamaño de fuente */
+        color: #dc3545;                 /* Color rojo */
+    }
+    
+    /* Accesibilidad: ocultar visualmente */
+    .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="product-form">
+                <!-- Encabezado del formulario -->
+                <header class="mb-4">
+                    <h1 class="h3 mb-0">{{ titulo }}</h1>
+                    <p class="text-muted mb-0">Complete todos los campos obligatorios marcados con <span class="text-danger">*</span></p>
+                </header>
+                
+                <hr class="my-4">
+                
+                <!-- Formulario principal -->
+                <form method="post" enctype="multipart/form-data" id="productForm" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Errores generales del formulario -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger" role="alert" aria-live="assertive">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <strong>Error:</strong>
+                            <ul class="mb-0 mt-2">
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Campos del formulario generados dinámicamente -->
+                    {% for field in form %}
+                        <div class="mb-4" id="field-{{ field.name }}">
+                            <label for="{{ field.id_for_label }}" class="form-label {% if field.field.required %}required-field{% endif %}">
+                                {{ field.label }}
+                                {% if field.field.required %}
+                                    <span class="visually-hidden">(campo requerido)</span>
+                                {% endif %}
+                            </label>
+                            
+                            <!-- Renderizado condicional de campos especiales -->
+                            {% if field.name == 'imagen' %}
+                                <div class="mb-2">
+                                    {{ field }}
+                                    {% if field.value %}
+                                        <div class="image-preview-container mt-2">
+                                            <p class="small text-muted mb-1">Vista previa actual:</p>
+                                            <img src="{{ field.value.url }}" alt="Vista previa de la imagen actual" class="preview-image">
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% elif field.name == 'precio' %}
+                                <div class="input-group price-input-group">
+                                    <span class="input-group-text">$</span>
+                                    {{ field }}
+                                    <span class="input-group-text">.00</span>
+                                </div>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+                            
+                            <!-- Mensajes de ayuda y errores -->
+                            {% if field.help_text %}
+                                <div class="form-text text-muted">{{ field.help_text|safe }}</div>
+                            {% endif %}
+                            
+                            {% if field.errors %}
+                                <div class="invalid-feedback d-block">
+                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                    {% for error in field.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    <!-- Botones de acción -->
+                    <div class="d-flex justify-content-between align-items-center border-top pt-4 mt-4">
+                        <a href="{% if object %}{% url 'producto_detalle' object.pk %}{% else %}{% url 'catalogo' %}{% endif %}" 
+                           class="btn btn-outline-secondary" 
+                           aria-label="Cancelar y volver atrás">
+                            <i class="fas fa-times me-1"></i> Cancelar
+                        </a>
+                        
+                        <button type="submit" class="btn btn-success btn-save" id="submitButton">
+                            <i class="fas fa-save me-1"></i> 
+                            <span>{% if object %}Actualizar{% else %}Crear{% endif %} Producto</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Validación del formulario del lado del cliente
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('productForm');
+    const submitButton = document.getElementById('submitButton');
+    
+    if (form) {
+        // Validar al enviar el formulario
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            // Validar campos requeridos
+            const requiredFields = form.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    const fieldContainer = field.closest('.mb-4');
+                    if (fieldContainer) {
+                        fieldContainer.classList.add('was-validated');
+                    }
+                    isValid = false;
+                }
+            });
+            
+            if (!isValid) {
+                // Desplazarse al primer campo con error
+                const firstError = form.querySelector('.is-invalid');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                event.preventDefault();
+            }
+        });
+        
+        // Validación en tiempo real para campos numéricos
+        const numericFields = form.querySelectorAll('input[type="number"]');
+        numericFields.forEach(field => {
+            field.addEventListener('input', function() {
+                if (this.value < 0) {
+                    this.value = 0;
+                }
+                
+                // Validar precio mínimo
+                if (this.name === 'precio' && this.value > 0 && this.value < 0.1) {
+                    this.setCustomValidity('El precio debe ser mayor a 0');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+        });
+        
+        // Vista previa de la imagen seleccionada
+        const imageInput = form.querySelector('input[type="file"][accept^="image/"]');
+        if (imageInput) {
+            imageInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        let previewContainer = imageInput.nextElementSibling;
+                        
+                        // Crear contenedor de vista previa si no existe
+                        if (!previewContainer || !previewContainer.classList.contains('image-preview-container')) {
+                            previewContainer = document.createElement('div');
+                            previewContainer.className = 'image-preview-container mt-2';
+                            imageInput.parentNode.insertBefore(previewContainer, imageInput.nextSibling);
+                        }
+                        
+                        // Mostrar la vista previa
+                        previewContainer.innerHTML = `
+                            <p class="small text-muted mb-1">Nueva vista previa:</p>
+                            <img src="${event.target.result}" alt="Vista previa de la imagen seleccionada" class="preview-image">
+                        `;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        
+        // Mejorar accesibilidad de los campos de formulario
+        const formFields = form.querySelectorAll('input, select, textarea');
+        formFields.forEach(field => {
+            // Agregar atributos ARIA
+            if (!field.id) {
+                field.id = `id_${field.name}_${Math.random().toString(36).substr(2, 9)}`;
+            }
+            
+            if (!field.getAttribute('aria-describedby')) {
+                const helpText = field.nextElementSibling;
+                if (helpText && helpText.classList.contains('form-text')) {
+                    helpText.id = `${field.id}_help`;
+                    field.setAttribute('aria-describedby', helpText.id);
+                }
+            }
+            
+            // Manejar validación en tiempo real
+            field.addEventListener('invalid', function() {
+                this.classList.add('is-invalid');
+            });
+            
+            field.addEventListener('input', function() {
+                if (this.checkValidity()) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                }
+            });
+        });
+    }
+    
+    // Deshabilitar el botón de envío después de hacer clic para evitar envíos duplicados
+    if (submitButton) {
+        form.addEventListener('submit', function() {
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Procesando...';
+        }, { once: true });
+    }
+});
+</script>
+{% endblock %}

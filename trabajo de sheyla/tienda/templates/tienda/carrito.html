@@ -1,0 +1,493 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+
+{% comment %}
+    PLANTILLA CARRITO - PC COMPONENT STORE
+    ===================================
+    Esta plantilla muestra el carrito de compras del usuario con todos los productos añadidos.
+    Incluye funcionalidad para actualizar cantidades, eliminar productos y proceder al pago.
+    
+    Variables de contexto esperadas:
+    - items_con_subtotal: Lista de tuplas (item, subtotal) con los productos en el carrito
+    - total: Precio total de la compra
+{% endcomment %}
+
+{% block extra_css %}
+<!-- Estilos específicos para la página del carrito de compras -->
+<style>
+    /* Cambia la fuente y el tamaño base de toda la interfaz del carrito */
+    .cart-container {
+        font-family: 'Roboto', Arial, sans-serif; /* Cambia la fuente */
+        font-size: 1.05rem; /* Cambia el tamaño base de letra */
+        max-width: 1200px;      /* Ancho máximo del contenedor */
+        margin: 0 auto;         /* Centrado horizontal */
+        padding: 20px;          /* Espaciado interno */
+    }
+    
+    /* Encabezado del carrito */
+    .cart-header {
+        text-align: center;     /* Centrado de texto */
+        margin-bottom: 40px;    /* Espaciado inferior */
+    }
+    
+    .cart-header h1 {
+        font-family: 'Roboto Slab', Arial, sans-serif; /* Fuente para títulos */
+        font-size: 2.8em; /* Tamaño de fuente más grande */
+        color: #1a1a2e;         /* Color del título */
+        margin-bottom: 10px;    /* Espaciado inferior */
+    }
+    
+    .cart-header p {
+        color: #666;            /* Color del subtítulo */
+        font-size: 1.1em;       /* Tamaño de fuente */
+    }
+    
+    /* Contenedor de los productos en el carrito */
+    .cart-items {
+        background: white;      /* Fondo blanco */
+        border-radius: 10px;    /* Bordes redondeados */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Sombra suave */
+        overflow: hidden;       /* Oculta el desbordamiento */
+        margin-bottom: 30px;    /* Espaciado inferior */
+    }
+    
+    /* Fila de producto individual */
+    .cart-item {
+        display: flex;          /* Disposición en fila */
+        padding: 20px;          /* Espaciado interno */
+        border-bottom: 1px solid #eee; /* Borde inferior sutil */
+        align-items: center;    /* Centrado vertical */
+    }
+    
+    .cart-item:last-child {
+        border-bottom: none;    /* Sin borde en el último elemento */
+    }
+    
+    /* Imagen del producto */
+    .item-image {
+        width: 120px;           /* Ancho fijo */
+        height: 120px;          /* Alto fijo */
+        object-fit: contain;    /* Ajuste manteniendo proporción */
+        margin-right: 20px;     /* Espaciado derecho */
+        background: #f9f9f9;    /* Fondo gris claro */
+        border-radius: 5px;     /* Bordes redondeados */
+        padding: 10px;          /* Espaciado interno */
+    }
+    
+    /* Detalles del producto */
+    .item-details {
+        flex: 1;                /* Ocupa el espacio restante */
+    }
+    
+    .item-details h3 {
+        margin: 0 0 5px 0;      /* Espaciado superior e inferior */
+        color: #1a1a2e;         /* Color del nombre */
+    }
+    
+    .item-details p {
+        margin: 0;              /* Sin margen */
+        color: #666;            /* Color de texto */
+        font-size: 0.9em;       /* Tamaño de fuente */
+    }
+    
+    /* Precio unitario del producto */
+    .item-price {
+        font-weight: bold;      /* Negrita */
+        color: #e94560;         /* Color rojo */
+        font-size: 1.2em;       /* Tamaño de fuente */
+        margin: 10px 0;         /* Espaciado vertical */
+    }
+    
+    /* Controles de cantidad */
+    .quantity-controls {
+        display: flex;          /* Disposición en fila */
+        align-items: center;    /* Centrado vertical */
+        margin: 10px 0;         /* Espaciado vertical */
+    }
+    
+    /* Botón de cantidad (+/-) */
+    .quantity-btn {
+        background: #f0f0f0;    /* Fondo gris claro */
+        border: none;           /* Sin borde */
+        width: 30px;            /* Ancho fijo */
+        height: 30px;           /* Alto fijo */
+        border-radius: 50%;     /* Forma circular */
+        display: flex;          /* Centrado de contenido */
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;        /* Cursor de mano */
+        font-size: 1.1em;       /* Tamaño de fuente */
+        transition: background 0.3s; /* Transición suave */
+    }
+    
+    .quantity-btn:hover {
+        background: #e0e0e0;    /* Fondo más oscuro al pasar el ratón */
+    }
+    
+    /* Campo de entrada de cantidad */
+    .quantity-input {
+        width: 50px;            /* Ancho fijo */
+        text-align: center;     /* Centrado de texto */
+        margin: 0 10px;         /* Espaciado horizontal */
+        border: 1px solid #ddd; /* Borde gris claro */
+        border-radius: 5px;     /* Bordes redondeados */
+        padding: 5px;           /* Espaciado interno */
+    }
+    
+    /* Botón para eliminar producto */
+    .remove-btn {
+        background: none;       /* Sin fondo */
+        border: none;           /* Sin borde */
+        color: #e94560;         /* Color rojo */
+        cursor: pointer;        /* Cursor de mano */
+        font-size: 1.2em;       /* Tamaño de fuente */
+        margin-left: 20px;      /* Espaciado izquierdo */
+    }
+    
+    /* Resumen del pedido */
+    .cart-summary {
+        background: #f9f9f9;    /* Fondo gris claro */
+        padding: 20px;          /* Espaciado interno */
+        border-radius: 10px;    /* Bordes redondeados */
+        margin-top: 30px;       /* Espaciado superior */
+    }
+    
+    /* Fila del resumen */
+    .summary-row {
+        display: flex;          /* Disposición en fila */
+        justify-content: space-between; /* Separación de elementos */
+        margin-bottom: 10px;    /* Espaciado inferior */
+        padding-bottom: 10px;   /* Espaciado inferior interno */
+        border-bottom: 1px solid #eee; /* Borde inferior sutil */
+    }
+    
+    /* Total del resumen */
+    .summary-total {
+        font-weight: bold;      /* Negrita */
+        font-size: 1.2em;       /* Tamaño de fuente */
+        color: #1a1a2e;         /* Color oscuro */
+    }
+    
+    /* Acciones del carrito */
+    .cart-actions {
+        display: flex;          /* Disposición en fila */
+        justify-content: space-between; /* Separación de botones */
+        margin-top: 30px;       /* Espaciado superior */
+        flex-wrap: wrap;        /* Permite salto de línea */
+        gap: 15px;              /* Espaciado entre botones */
+    }
+    
+    /* Botones principales del carrito */
+    .btn-continue-shopping,
+    .btn-checkout,
+    .btn-empty-cart {
+        padding: 12px 25px;     /* Espaciado interno */
+        border-radius: 5px;     /* Bordes redondeados */
+        text-decoration: none;  /* Sin subrayado */
+        font-weight: bold;      /* Negrita */
+        display: inline-flex;   /* Disposición flexible en línea */
+        align-items: center;    /* Centrado vertical */
+        transition: all 0.3s;   /* Transición suave */
+    }
+    
+    /* Botón para seguir comprando */
+    .btn-continue-shopping {
+        background: #f0f0f0;    /* Fondo gris claro */
+        color: #333;            /* Texto oscuro */
+    }
+    
+    .btn-continue-shopping:hover {
+        background: #e0e0e0;    /* Fondo más oscuro al pasar el ratón */
+        color: #000;            /* Texto negro */
+    }
+    
+    /* Botón para proceder al pago */
+    .btn-checkout {
+        background: #1a1a2e;    /* Fondo oscuro */
+        color: white;           /* Texto blanco */
+    }
+    
+    .btn-checkout:hover {
+        background: #e94560;    /* Fondo rojo al pasar el ratón */
+        color: white;           /* Texto blanco */
+    }
+    
+    /* Botón para vaciar el carrito */
+    .btn-empty-cart {
+        background: #f8d7da;    /* Fondo rojo claro */
+        color: #721c24;         /* Texto rojo oscuro */
+        border: none;           /* Sin borde */
+        cursor: pointer;        /* Cursor de mano */
+    }
+    
+    .btn-empty-cart:hover {
+        background: #f5c6cb;    /* Fondo más oscuro al pasar el ratón */
+    }
+    
+    /* Estado de carrito vacío */
+    .empty-cart {
+        text-align: center;     /* Centrado de texto */
+        padding: 60px 20px;     /* Espaciado interno */
+    }
+    
+    .empty-cart i {
+        font-size: 4em;         /* Tamaño grande del ícono */
+        color: #e94560;         /* Color rojo */
+        margin-bottom: 20px;    /* Espaciado inferior */
+    }
+    
+    .empty-cart h3 {
+        color: #1a1a2e;         /* Color oscuro */
+        margin-bottom: 10px;    /* Espaciado inferior */
+    }
+    
+    .empty-cart p {
+        color: #666;            /* Color de texto */
+        margin-bottom: 30px;    /* Espaciado inferior */
+    }
+    
+    /* Botón para ir a la tienda desde el carrito vacío */
+    .btn-shop-now {
+        background: #1a1a2e;    /* Fondo oscuro */
+        color: white;           /* Texto blanco */
+        padding: 12px 30px;     /* Espaciado interno */
+        border-radius: 5px;     /* Bordes redondeados */
+        text-decoration: none;  /* Sin subrayado */
+        font-weight: bold;      /* Negrita */
+        display: inline-flex;   /* Disposición flexible en línea */
+        align-items: center;    /* Centrado vertical */
+        transition: all 0.3s;   /* Transición suave */
+    }
+    
+    .btn-shop-now:hover {
+        background: #e94560;    /* Fondo rojo al pasar el ratón */
+        color: white;           /* Texto blanco */
+    }
+    
+    /* Estilos responsivos para pantallas medianas y pequeñas */
+    @media (max-width: 768px) {
+        .cart-item {
+            flex-direction: column;    /* Cambia a columna en móviles */
+            text-align: center;        /* Centra el texto */
+        }
+        
+        .item-image {
+            margin: 0 auto 15px;      /* Centra la imagen y agrega margen inferior */
+        }
+        
+        .quantity-controls {
+            justify-content: center;   /* Centra los controles de cantidad */
+        }
+        
+        .cart-actions {
+            flex-direction: column;    /* Cambia a columna en móviles */
+        }
+        
+        .btn-continue-shopping,
+        .btn-checkout,
+        .btn-empty-cart {
+            width: 100%;               /* Botones ocupan todo el ancho */
+            justify-content: center;   /* Centra el contenido */
+            margin-bottom: 10px;       /* Espaciado inferior */
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cart-container"> <!-- Contenedor principal del carrito -->
+    <!-- Encabezado del carrito -->
+    <div class="cart-header">
+        <h1>Tu Carrito de Compras</h1> <!-- Título principal -->
+        <p>Revisa los productos que has seleccionado</p> <!-- Subtítulo -->
+    </div>
+    
+    <!-- Sección de productos en el carrito -->
+    {% if items_con_subtotal %}
+        <div class="cart-items"> <!-- Lista de productos en el carrito -->
+            <!-- Iterar sobre cada producto en el carrito -->
+            {% for item, subtotal in items_con_subtotal %}
+            <div class="cart-item"> <!-- Fila de producto individual -->
+                <!-- Imagen del producto -->
+                <img src="{% if item.producto.imagen_url %}{{ item.producto.imagen_url }}{% else %}{% static 'img/placeholder.png' %}{% endif %}" 
+                     alt="{{ item.producto.nombre }}" class="item-image" 
+                     loading="lazy" width="120" height="120">
+                
+                <!-- Detalles del producto -->
+                <div class="item-details">
+                    <h3>{{ item.producto.nombre }}</h3> <!-- Nombre del producto -->
+                    <p>{{ item.producto.marca }} {{ item.producto.modelo }}</p> <!-- Marca y modelo -->
+                    <div class="item-price">${{ item.producto.precio|floatformat:2 }}</div> <!-- Precio unitario -->
+                    
+                    <!-- Formulario para actualizar la cantidad -->
+                    <form method="post" action="{% url 'actualizar_carrito' item.id %}" class="quantity-form" 
+                          aria-label="Actualizar cantidad de {{ item.producto.nombre }}">
+                        {% csrf_token %}
+                        <div class="quantity-controls">
+                            <!-- Botón para disminuir cantidad -->
+                            <button type="button" class="quantity-btn btn-decrease" 
+                                    aria-label="Reducir cantidad">-</button>
+                            
+                            <!-- Campo de entrada para la cantidad -->
+                            <input type="number" 
+                                   name="cantidad" 
+                                   value="{{ item.cantidad }}" 
+                                   min="1" 
+                                   max="{{ item.producto.stock }}" 
+                                   class="quantity-input" 
+                                   data-product-id="{{ item.producto.id }}"
+                                   aria-label="Cantidad de {{ item.producto.nombre }}">
+                            
+                            <!-- Botón para aumentar cantidad -->
+                            <button type="button" class="quantity-btn btn-increase" 
+                                    aria-label="Aumentar cantidad">+</button>
+                            
+                            <!-- Botón de envío oculto (se activa con JavaScript) -->
+                            <button type="submit" class="d-none" aria-hidden="true">Actualizar</button>
+                        </div>
+                    </form>
+                    
+                    <!-- Subtotal por producto -->
+                    <div class="item-subtotal">
+                        <strong>Subtotal:</strong> ${{ subtotal|floatformat:2 }}
+                    </div>
+                </div>
+                
+                <!-- Formulario para eliminar producto del carrito -->
+                <form method="post" action="{% url 'eliminar_del_carrito' item.id %}" class="remove-form">
+                    {% csrf_token %}
+                    <button type="submit" class="remove-btn" 
+                            title="Eliminar {{ item.producto.nombre }} del carrito"
+                            aria-label="Eliminar {{ item.producto.nombre }} del carrito"
+                            onclick="return confirm('¿Estás seguro de eliminar este producto del carrito?')">
+                        <i class="fas fa-trash" aria-hidden="true"></i>
+                    </button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Resumen del pedido -->
+        <div class="cart-summary" aria-label="Resumen del pedido">
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span>${{ total|floatformat:2 }}</span>
+            </div>
+            <div class="summary-row">
+                <span>Envío</span>
+                <span>Gratis</span>
+            </div>
+            <div class="summary-row summary-total">
+                <span>Total</span>
+                <span>${{ total|floatformat:2 }}</span>
+            </div>
+        </div>
+        
+        <!-- Acciones del carrito -->
+        <div class="cart-actions">
+            <!-- Botón para seguir comprando -->
+            <a href="{% url 'catalogo' %}" class="btn-continue-shopping">
+                <i class="fas fa-arrow-left" aria-hidden="true"></i> Seguir Comprando
+            </a>
+            
+            <div class="d-flex" style="gap: 10px;">
+                <!-- Formulario para vaciar el carrito -->
+                <form method="post" action="{% url 'vaciar_carrito' %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-empty-cart" 
+                            onclick="return confirm('¿Estás seguro de vaciar el carrito?')">
+                        <i class="fas fa-trash-alt" aria-hidden="true"></i> Vaciar Carrito
+                    </button>
+                </form>
+                
+                <!-- Botón para proceder al pago -->
+                <a href="{% url 'procesar_pago' %}" class="btn-checkout" 
+                   onclick="return confirm('¿Confirmas tu compra?')">
+                    Proceder al Pago <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <!-- Estado de carrito vacío -->
+        <div class="empty-cart" aria-live="polite">
+            <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+            <h3>Tu carrito está vacío</h3>
+            <p>¡Aún no has agregado productos a tu carrito!</p>
+            <a href="{% url 'catalogo' %}" class="btn-shop-now">
+                <i class="fas fa-store" aria-hidden="true"></i> Ir a la tienda
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        /**
+         * Maneja el evento de clic en el botón de incremento (+)
+         * Incrementa la cantidad del producto en 1 si hay stock disponible
+         */
+        document.querySelectorAll('.btn-increase').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const form = this.closest('form');
+                const input = form.querySelector('input[name="cantidad"]');
+                const maxStock = parseInt(input.getAttribute('max')) || 999;
+                let quantity = parseInt(input.value) || 1;
+                
+                // Verificar stock antes de incrementar
+                if (quantity < maxStock) {
+                    quantity++;
+                    input.value = quantity;
+                    form.submit();
+                } else {
+                    alert('No hay suficiente stock disponible');
+                }
+            });
+        });
+
+        /**
+         * Maneja el evento de clic en el botón de decremento (-)
+         * Disminuye la cantidad del producto en 1 (mínimo 1)
+         */
+        document.querySelectorAll('.btn-decrease').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const form = this.closest('form');
+                const input = form.querySelector('input[name="cantidad"]');
+                let quantity = parseInt(input.value) || 1;
+                
+                // No permitir cantidades menores a 1
+                if (quantity > 1) {
+                    quantity--;
+                    input.value = quantity;
+                    form.submit();
+                }
+            });
+        });
+
+        /**
+         * Maneja el cambio manual en el campo de cantidad
+         * Valida la entrada y actualiza automáticamente el carrito
+         */
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const maxStock = parseInt(this.getAttribute('max')) || 999;
+                let quantity = parseInt(this.value) || 1;
+                
+                // Validar que la cantidad esté dentro de los límites
+                if (quantity > maxStock) {
+                    this.value = maxStock;
+                    alert('La cantidad no puede ser mayor al stock disponible');
+                } else if (quantity < 1) {
+                    this.value = 1;
+                }
+                
+                // Enviar el formulario para actualizar el carrito
+                this.closest('form').submit();
+            });
+        });
+    });
+</script>
+{% endblock %}

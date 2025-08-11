@@ -1,0 +1,19 @@
+body {
+    background-color: #f4f6fa;
+}
+.card {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.navbar-brand {
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+.btn-primary, .btn-success, .btn-warning, .btn-danger {
+    border-radius: 6px;
+}
+.table {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
